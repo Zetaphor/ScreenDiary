@@ -14,7 +14,6 @@ def find_color_y_position(input_image):
     Find the Y-coordinate of the first occurrence of a specified color in an image,
     starting from a given X-coordinate.
     """
-    target_color = hex_to_rgb(os.getenv('TITLEBAR_COLOR'))
     width, height = input_image.size
 
     if int(os.getenv('TITLEBAR_COLOR_X')) >= width:
@@ -28,7 +27,7 @@ def find_color_y_position(input_image):
 
     return None
 
-def crop_image_at_coordinate(input_image, y_coordinate, output_path=None):
+def extract_titlebar(input_image, y_coordinate):
     """
     Crop the image starting from a specified y-coordinate, using the full width
     and extending down by a specified height.
@@ -37,18 +36,28 @@ def crop_image_at_coordinate(input_image, y_coordinate, output_path=None):
     width, _ = input_image.size
     # Define the cropping box (left, upper, right, lower)
     crop_box = (int(os.getenv('TITLEBAR_COLOR_X')) + int(os.getenv('TITLEBAR_LEFT_BOUNDARY')), y_coordinate, width - int(os.getenv('TITLEBAR_RIGHT_BOUNDARY')), y_coordinate + int(os.getenv('TITLEBAR_HEIGHT')))
-    cropped_img = input_image.crop(crop_box)
-    cropped_img.save(output_path)
+    cropped_titlebar = input_image.crop(crop_box)
+    return cropped_titlebar
 
-def crop_titlebar(input_image, output_path):
+def extract_content(input_image, y_coordinate):
+    """
+    Crop the image starting from a specified y-coordinate, using the full width
+    and extending down by a specified height.
+    """
+
+    width, height = input_image.size
+    crop_box = (0, y_coordinate, width, height)
+    cropped_content = input_image.crop(crop_box)
+    return cropped_content
+
+def crop_image(input_image):
     y_position = find_color_y_position(input_image)
     if y_position is not None:
         # print(f"Color found at Y-coordinate: {y_position}")
-        crop_image_at_coordinate(input_image, y_position, output_path)
-        return True
+        titlebar = extract_titlebar(input_image, y_position)
+        content = extract_content(input_image, y_position)
+        return content, titlebar
     else:
         print("Titlebar color not found.")
-        return False
-
-# with Image.open('./benchmark/browser.png') as img:
-#     crop_titlebar(img, './benchmark/browser_titlebar.png')
+        content = extract_content(input_image, 0)
+        return content,

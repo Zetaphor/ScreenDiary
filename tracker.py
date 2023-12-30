@@ -5,9 +5,11 @@ import os
 import shutil
 from dotenv import load_dotenv
 from screenshot import take_screenshot
-from image_hashing import perceptual_hash
-from tesseract import extract_text_from_image
-from crop_titlebar import crop_titlebar
+# from difference_hash import difference_hash
+from crop_image import crop_image
+from PIL import Image
+import pytesseract
+import imagehash
 
 load_dotenv()
 
@@ -18,42 +20,44 @@ previous_hash = None
 def process_screenshot():
     global previous_hash
     if DEBUG:
-      start_time = time.time()
+        start_time = time.time()
 
     datetime_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    screenshot_file = f"./screenshots/capture/{datetime_string}.png"
+    screenshot_file = f"./screenshots/{datetime_string}.png"
     take_screenshot(screenshot_file)
-    hash = perceptual_hash(screenshot_file)
+
+    capture = Image.open(f"./screenshots/{datetime_string}.png")
 
     # Check if the current screenshot is perceptually different from the previous one
+    hash = imagehash.phash(capture)
     if previous_hash is not None:
         if hash == previous_hash:
-          print(f"Skipping identical frame: {screenshot_file}")
-          os.remove(screenshot_file)
+            print(f"Skipping identical frame: {screenshot_file}")
+            os.remove(screenshot_file)
 
-          if DEBUG:
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            print(f"Executed in {elapsed_time} seconds")
-          return
+            if DEBUG:
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                print(f"Executed in {elapsed_time} seconds")
+            return
 
-    titlebar_cropped = crop_titlebar(f"./screenshots/capture/{datetime_string}.png", f"./screenshots/titlebar/{datetime_string}_titlebar.png")
-    # if titlebar_cropped:
-    #     with open(f"./ocr/titlebar/{datetime_string}_titlebar.txt", "w") as file:
-    #       file.write(extract_text_from_image(f"./screenshots/titlebar/{datetime_string}_titlebar.png"))
-    # else:
-    #     print(f"Screenshot does not have titlebar: {screenshot_file}")
+    crop_data = crop_image(capture)
+    if (len(crop_data) == 2):
+        with open(f"./ocr/{datetime_string}_titlebar.txt", "w") as file:
+            file.write(pytesseract.image_to_string(crop_data[1]))
+    elif DEBUG:
+        print(f"Screenshot does not have titlebar: {screenshot_file}")
 
-    # with open(f"./ocr/content/{datetime_string}_content.txt", "w") as file:
-    #   file.write(extract_text_from_image(f"./screenshots/capture/{datetime_string}.png"))
+    with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
+        file.write(pytesseract.image_to_string(crop_data[0]))
 
     print(f"Screenshot taken: {screenshot_file}")
     previous_hash = hash
 
     if DEBUG:
-      end_time = time.time()
-      elapsed_time = end_time - start_time
-      print(f"Function executed in {elapsed_time} seconds")
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"Function executed in {elapsed_time} seconds")
 
 def screenshot_timer(func):
     threading.Timer(int(os.getenv('SCREENSHOT_INTERVAL')), screenshot_timer, [func]).start()
@@ -62,7 +66,7 @@ def screenshot_timer(func):
 # Clear contents of image folders in debug mode
 if DEBUG:
     print('Debug enabled, deleting images...')
-    for folder in ['screenshots/crop', 'screenshots/capture', 'screenshots/titlebar', 'ocr/titlebar', 'ocr/content']:
+    for folder in ['screenshots', 'ocr']:
         for filename in os.listdir(folder):
             if filename == '.gitkeep':  # Skip .gitkeep files
                 continue

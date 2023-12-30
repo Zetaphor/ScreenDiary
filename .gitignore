@@ -1,3 +1,3 @@
 screenshots/**/*.png
-ocr/**/*.txt
+ocr/*.txt
 __pycache__

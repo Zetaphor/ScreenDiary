@@ -1,23 +1,6 @@
 from PIL import Image
 import imagehash
 
-def perceptual_hash(image_path):
-  """ Calculate the perceptual hash of an image.
-
-  Args:
-    image_path (str): Path to the image.
-
-  Returns:
-    int: The perceptual hash of the image.
-  """
-  # Open the image
-  image = Image.open(image_path)
-
-  # Calculate the hash
-  hash = imagehash.phash(image)
-
-  return hash
-
 def difference_hash(image_path1, image_path2):
   """ Compare two images and return if they are identical using difference hash.
 
