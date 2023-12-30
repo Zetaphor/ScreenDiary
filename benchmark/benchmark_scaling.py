@@ -1,11 +1,15 @@
 from PIL import Image
 import pytesseract
+from dotenv import load_dotenv
+import os
 import time
-import timeit
+
+
+load_dotenv()
 
 threshold = 50
-resize_scale = 0.6
-image_path = './benchmark/editor.png'
+resize_scale = 0.75
+image_path = 'browser.png'
 
 resampling_methods = {
     'NEAREST': Image.Resampling.NEAREST,
@@ -25,17 +29,20 @@ def test_method(resize_method):
     img_copy = img_copy.convert("L")
     # perform the binarization through a simple lambda
     img_copy = img_copy.point(lambda x: 255 if x > threshold else 0, mode="1")
-    # Calculate the new size, X% of the original size
-    new_size = tuple(int(dim * resize_scale) for dim in img.size)
-    # Resize the image
-    resized_img = img.resize(new_size, resampling_methods[resize_method])
-    text = pytesseract.image_to_string(resized_img)
+
+    # Resize while keeping aspect ratio
+    # max_width = int(os.getenv('RESIZE_MAX_WIDTH'))
+    # width_percent = (max_width) / float(img_copy.size[0])
+    # new_height = int((float(img_copy.size[1]) * float(width_percent)))
+    # resized_img = img_copy.resize((max_width, new_height), resampling_methods[resize_method])
+
+    text = pytesseract.image_to_string(img_copy)
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"Function executed in {elapsed_time} seconds")
-    with open(f"./benchmark/test/resized_{resize_method}.txt", "w") as file:
+    with open(f"resized_{resize_method}.txt", "w") as file:
       file.write(text)
-    resized_img.save(f"./benchmark/test/resized_{resize_method}.png")
+    img_copy.save(f"resized_{resize_method}.png")
     return True
 
 # https://pillow.readthedocs.io/en/stable/handbook/concepts.html#filters-comparison-table

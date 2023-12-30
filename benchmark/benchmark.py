@@ -2,7 +2,6 @@ from crop_titlebar import crop_titlebar
 from image_hashing import perceptual_hash
 from tesseract import extract_text_from_image
 import timeit
-from new_titlebar import find_color_y_position
 from dotenv import load_dotenv
 import os
 import time
