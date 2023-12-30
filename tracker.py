@@ -5,11 +5,9 @@ import os
 import shutil
 from dotenv import load_dotenv
 from screenshot import take_screenshot
-from crop_screenshot import crop_screenshot
-from has_titlebar import has_titlebar
-from crop_titlebar import crop_titlebar
 from image_hashing import perceptual_hash
 from tesseract import extract_text_from_image
+from crop_titlebar import crop_titlebar
 
 load_dotenv()
 
@@ -39,17 +37,15 @@ def process_screenshot():
             print(f"Executed in {elapsed_time} seconds")
           return
 
-    crop_screenshot(screenshot_file, f"./screenshots/crop/{datetime_string}_crop.png")
-    if has_titlebar(f"./screenshots/crop/{datetime_string}_crop.png"):
-        print(f"Screenshot has titlebar: {screenshot_file}")
-        crop_titlebar(f"./screenshots/crop/{datetime_string}_crop.png", f"./screenshots/titlebar/{datetime_string}_titlebar.png")
-        with open(f"./ocr/titlebar/{datetime_string}_titlebar.txt", "w") as file:
-          file.write(extract_text_from_image(f"./screenshots/titlebar/{datetime_string}_titlebar.png"))
-    else:
-        print(f"Screenshot does not have titlebar: {screenshot_file}")
+    titlebar_cropped = crop_titlebar(f"./screenshots/capture/{datetime_string}.png", f"./screenshots/titlebar/{datetime_string}_titlebar.png")
+    # if titlebar_cropped:
+    #     with open(f"./ocr/titlebar/{datetime_string}_titlebar.txt", "w") as file:
+    #       file.write(extract_text_from_image(f"./screenshots/titlebar/{datetime_string}_titlebar.png"))
+    # else:
+    #     print(f"Screenshot does not have titlebar: {screenshot_file}")
 
-    with open(f"./ocr/content/{datetime_string}_content.txt", "w") as file:
-      file.write(extract_text_from_image(f"./screenshots/crop/{datetime_string}_crop.png"))
+    # with open(f"./ocr/content/{datetime_string}_content.txt", "w") as file:
+    #   file.write(extract_text_from_image(f"./screenshots/capture/{datetime_string}.png"))
 
     print(f"Screenshot taken: {screenshot_file}")
     previous_hash = hash
