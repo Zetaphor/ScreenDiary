@@ -4,7 +4,7 @@ import os
 
 load_dotenv()
 
-def crop_top(image_path, output_path):
+def crop_titlebar(image_path, output_path):
     """
     Crop the top part of an image.
 
@@ -23,6 +23,5 @@ def crop_top(image_path, output_path):
         # Save the cropped image
         cropped_img.save(output_path)
 
-# Example usage
-crop_top('./screenshots/editor_cropped.png', './screenshots/editor_titlebar.png')
-crop_top('./screenshots/qtbus_cropped.png', './screenshots/qtbus_titlebar.png')
+# crop_titlebar('./screenshots/editor_cropped.png', './screenshots/editor_titlebar.png')
+# crop_titlebar('./screenshots/qtbus_cropped.png', './screenshots/qtbus_titlebar.png')

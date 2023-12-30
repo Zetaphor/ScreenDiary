@@ -10,14 +10,14 @@ def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip('#')
     return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
-def is_close_color(colors, background_color, threshold=10):
+def is_close_color(colors, background_color, threshold):
     """
     Determine if colors are close to background_color within a given threshold.
     This is used to ensure the background color is still removed even if a floating window has a drop shadow.
     """
     return np.all(np.abs(colors - background_color) <= threshold, axis=-1)
 
-def get_bounding_box(pixels, background_color, threshold=10):
+def get_bounding_box(pixels, background_color, threshold):
     """Get the bounding box of the non-background area in an image."""
     mask = ~is_close_color(pixels, background_color, threshold)
     coords = np.argwhere(mask)
@@ -27,7 +27,7 @@ def get_bounding_box(pixels, background_color, threshold=10):
     y_max, x_max = coords.max(axis=0)
     return x_min, y_min, x_max + 1, y_max + 1
 
-def replace_transparency(input_path, output_path):
+def crop_screenshot(input_path, output_path):
     """
     Replace the transparency in a PNG image with a solid background color.
 
@@ -53,12 +53,12 @@ def replace_transparency(input_path, output_path):
                 cropped_img.save(output_path, "PNG")
                 return True
             else:
-                print("No non-background area found.")
+                bg_image.save(output_path, "PNG")
                 return False
         else:
+            bg_image.save(output_path, "PNG")
             return False
 
-# Example usage
-replace_transparency("./screenshots/qtbus.png", "./screenshots/qtbus_cropped.png")
-replace_transparency("./screenshots/editor.png", "./screenshots/editor_cropped.png")
-replace_transparency("./screenshots/terminal.png", "./screenshots/terminal_cropped.png")
+# crop_screenshot("./screenshots/qtbus.png", "./screenshots/qtbus_cropped.png")
+# crop_screenshot("./screenshots/editor.png", "./screenshots/editor_cropped.png")
+# crop_screenshot("./screenshots/terminal.png", "./screenshots/terminal_cropped.png")

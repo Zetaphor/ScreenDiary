@@ -19,7 +19,7 @@ def extract_text_from_image(image_path):
 
     return text
 
-text = extract_text_from_image('./screenshots/qtbus_titlebar.png')
-print(text)
-text = extract_text_from_image('./screenshots/editor_titlebar.png')
-print(text)
+# text = extract_text_from_image('./screenshots/qtbus_titlebar.png')
+# print(text)
+# text = extract_text_from_image('./screenshots/editor_titlebar.png')
+# print(text)
