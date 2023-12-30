@@ -5,7 +5,6 @@ import os
 import shutil
 from dotenv import load_dotenv
 from screenshot import take_screenshot
-# from difference_hash import difference_hash
 from crop_image import crop_image
 from PIL import Image
 import pytesseract
@@ -15,7 +14,10 @@ load_dotenv()
 
 DEBUG = True
 
-previous_hash = None
+phash = None
+dhash = None
+previous_dhash = None
+previous_phash = None
 
 def binarize_image(image):
     """Convert an image to grayscale and binarize it"""
@@ -25,7 +27,7 @@ def binarize_image(image):
     return image
 
 def process_screenshot():
-    global previous_hash
+    global phash, dhash, previous_dhash, previous_phash
     if DEBUG:
         start_time = time.time()
 
@@ -35,19 +37,27 @@ def process_screenshot():
 
     capture = Image.open(f"./screenshots/{datetime_string}.png")
 
-    # Check if the current screenshot is perceptually different from the previous one
-    hash = imagehash.phash(capture)
-    if previous_hash is not None:
-        if hash == previous_hash:
-            print(f"Skipping identical frame: {screenshot_file}")
-            os.remove(screenshot_file)
+    # Check if the screenshot is identical to the previous one
+    if bool(int(os.getenv('ENABLE_PERCEPTUAL_HASHING'))):
+        phash = imagehash.phash(capture)
+        if previous_phash is not None:
+            if phash == previous_phash:
+                print(f"Skipping identical frame: {datetime_string}")
+                os.remove(screenshot_file)
+                return
 
-            # if DEBUG:
-            #     end_time = time.time()
-            #     elapsed_time = end_time - start_time
-            #     print(f"Executed in {elapsed_time} seconds")
-            # return
+    # Check if the screenshot is similar to the previous one
+    if bool(int(os.getenv('ENABLE_DIFFERENCE_THRESHOLD'))):
+        dhash = imagehash.dhash(capture)
+        if previous_dhash is not None:
+            difference = dhash - previous_dhash
+            print(f"Difference: {difference}")
+            if difference < int(os.getenv('DIFFERENCE_THRESHOLD')):
+                print(f"Skipping similar frame: {datetime_string}")
+                os.remove(screenshot_file)
+                return
 
+    # Extract tht titlebar and OCR it
     crop_data = crop_image(capture)
     if (len(crop_data) == 2):
         with open(f"./ocr/{datetime_string}_titlebar.txt", "w") as file:
@@ -64,7 +74,8 @@ def process_screenshot():
         file.write(pytesseract.image_to_string(content))
 
     print(f"Screenshot taken: {screenshot_file}")
-    previous_hash = hash
+    previous_dhash = dhash
+    previous_phash = phash
 
     if DEBUG:
         end_time = time.time()
