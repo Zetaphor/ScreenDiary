@@ -58,6 +58,6 @@ def crop_image(input_image):
         content = extract_content(input_image, y_position)
         return content, titlebar
     else:
-        print("Titlebar color not found.")
+        # print("Titlebar color not found.")
         content = extract_content(input_image, 0)
         return content,

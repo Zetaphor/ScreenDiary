@@ -17,6 +17,14 @@ DEBUG = True
 
 previous_hash = None
 
+def binarize_image(image):
+    img_copy = image.copy()
+    # Convert to grayscale
+    img_copy = img_copy.convert("L")
+    # Perform the binarization through a simple lambda
+    img_copy = img_copy.point(lambda x: 255 if x > int(os.getenv('BINARIZATION_THRESHOLD')) else 0, mode="1")
+    return image
+
 def process_screenshot():
     global previous_hash
     if DEBUG:
@@ -35,21 +43,27 @@ def process_screenshot():
             print(f"Skipping identical frame: {screenshot_file}")
             os.remove(screenshot_file)
 
-            if DEBUG:
-                end_time = time.time()
-                elapsed_time = end_time - start_time
-                print(f"Executed in {elapsed_time} seconds")
-            return
+            # if DEBUG:
+            #     end_time = time.time()
+            #     elapsed_time = end_time - start_time
+            #     print(f"Executed in {elapsed_time} seconds")
+            # return
 
     crop_data = crop_image(capture)
     if (len(crop_data) == 2):
         with open(f"./ocr/{datetime_string}_titlebar.txt", "w") as file:
-            file.write(pytesseract.image_to_string(crop_data[1]))
+            titlebar = binarize_image(crop_data[1])
+            if bool(os.getenv('ENABLE_BINARIZATION')):
+                titlebar = binarize_image(crop_data[1])
+            file.write(pytesseract.image_to_string(titlebar))
     elif DEBUG:
         print(f"Screenshot does not have titlebar: {screenshot_file}")
 
     with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
-        file.write(pytesseract.image_to_string(crop_data[0]))
+        content = binarize_image(crop_data[0])
+        if bool(os.getenv('ENABLE_BINARIZATION')):
+            content = binarize_image(crop_data[0])
+        file.write(pytesseract.image_to_string(content))
 
     print(f"Screenshot taken: {screenshot_file}")
     previous_hash = hash
