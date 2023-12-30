@@ -18,10 +18,9 @@ DEBUG = True
 previous_hash = None
 
 def binarize_image(image):
+    """Convert an image to grayscale and binarize it"""
     img_copy = image.copy()
-    # Convert to grayscale
     img_copy = img_copy.convert("L")
-    # Perform the binarization through a simple lambda
     img_copy = img_copy.point(lambda x: 255 if x > int(os.getenv('BINARIZATION_THRESHOLD')) else 0, mode="1")
     return image
 
@@ -56,12 +55,11 @@ def process_screenshot():
             if bool(os.getenv('ENABLE_BINARIZATION')):
                 titlebar = binarize_image(crop_data[1])
             file.write(pytesseract.image_to_string(titlebar))
-    elif DEBUG:
-        print(f"Screenshot does not have titlebar: {screenshot_file}")
 
+    # Extract the content and OCR it
     with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
         content = binarize_image(crop_data[0])
-        if bool(os.getenv('ENABLE_BINARIZATION')):
+        if bool(int(os.getenv('ENABLE_BINARIZATION'))):
             content = binarize_image(crop_data[0])
         file.write(pytesseract.image_to_string(content))
 

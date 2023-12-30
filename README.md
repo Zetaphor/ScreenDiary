@@ -1,10 +1,15 @@
-### Process
+# ScreenDiary
+
+A tool to keep a visual and text log of everything you've done with your computer, allowing you to easily search through your previous activity.
+
+See the `.env` file for configuration.
+
+### Image Processing Pipeline
 
 * Take a screenshot every 2 seconds
-* Check the image for a transparent boundary (this is from Spectacle)
-  * If found, replace the transparency with `TRANSPARENCY_REPLACEMENT_COLOR`
-  * Then crop the image to remove the boundary, accounting for drop shadows with `TRANSPARENCY_COLOR_THRESHOLD`
-* Determine if the image has a titlebar by checking for the `TITLEBAR_COLOR` at `TITLEBAR_COLOR_X`, `TITLEBAR_COLOR_Y`
-  * If a titlebar is found, crop the titlebar using `TITLEBAR_HEIGHT`, cutting off the left and right sides using `TITLEBAR_LEFT_BOUNDARY` and `TITLEBAR_RIGHT_BOUNDARY` to remove the window, icon and window decorations.
-  * Run OCR on the window titlebar
-* Run OCR on the window contents
+* Check if the current image is different from the previous image (perceptual hashing)
+* Extract the titlebar content using tesseract OCR
+  * This is done by scanning downward from the `TITLEBAR_COLOR_X, 0` coordinates of the screenshot for the presence of the `TITLEBAR_COLOR`, and then cropping from that point down to the `TITLEBAR_HEIGHT`
+  * The titlebar is then further cropped using the `TITLEBAR_LEFT_BOUNDARY` and `TITLEBAR_RIGHT_BOUNDARY` to remove the window icon and window decorations
+  * If we've passed the `TITLEBAR_COLOR_Y_LIMIT` without finding the color, the screenshot does not have a titlebar
+* Extract the text content using tesseract OCR

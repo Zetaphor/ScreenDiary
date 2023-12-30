@@ -50,6 +50,7 @@ def extract_content(input_image, y_coordinate):
     return cropped_content
 
 def crop_image(input_image):
+    """Crop the image to extract the titlebar and content."""
     y_position = find_color_y_position(input_image)
     if y_position is not None:
         # print(f"Color found at Y-coordinate: {y_position}")
