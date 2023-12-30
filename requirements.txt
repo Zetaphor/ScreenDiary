@@ -1,0 +1,4 @@
+imagehash
+pytesseract
+Pillow
+numpy
