@@ -1,4 +1,3 @@
 imagehash
 pytesseract
 Pillow
-numpy
