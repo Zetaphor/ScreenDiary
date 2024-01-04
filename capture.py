@@ -15,6 +15,7 @@ load_dotenv()
 logger = get_logger()
 
 DEBUG = bool(int(os.getenv('DEBUG')))
+DEBUG_OCR = bool(int(os.getenv('DEBUG_OCR')))
 
 phash = None
 dhash = None
@@ -82,7 +83,7 @@ def process_display():
 
     capture_result = {
         'datetime': datetime_string,
-        'file': screenshot_file,
+        'file_path': screenshot_file,
         'ocr_title': titlebar_str,
         'ocr_content': content_str
     }
@@ -95,6 +96,17 @@ def process_display():
         end_time = time.time()
         elapsed_time = end_time - start_time
         logger.debug(f"Function executed in {elapsed_time} seconds")
+
+    if DEBUG_OCR:
+        os.makedirs(f"./ocr", exist_ok=True)
+
+        # Write OCR title to a file
+        with open(f"./ocr/{datetime_string}_title.txt", "w") as file:
+            file.write(titlebar_str)
+
+        # Write OCR content to a file
+        with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
+            file.write(content_str)
 
     return capture_result
 
