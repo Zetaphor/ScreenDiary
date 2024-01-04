@@ -1,4 +1,4 @@
-screenshots/**/*.png
+screenshots/
 ocr/
 __pycache__
 logs/
