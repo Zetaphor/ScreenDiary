@@ -40,6 +40,7 @@ def initialize_tables(cursor):
             file_path TEXT,
             ocr_title TEXT,
             ocr_content TEXT,
+            ocr_time INTEGER,
             should_ocr_content INTEGER,
             application_name TEXT,
             url TEXT
@@ -57,14 +58,14 @@ def reset_tables():
     conn.commit()
     conn.close()
 
-def add_record(datetime, file_path, ocr_title, ocr_content, url, should_ocr_content, application_name):
+def add_record(datetime, file_path, ocr_title, ocr_content, url, should_ocr_content, ocr_time, application_name):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO captures (datetime, file_path, ocr_title, ocr_content, url, should_ocr_content, application_name)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (datetime, file_path, ocr_title, ocr_content, url, int(should_ocr_content), application_name))
+        INSERT INTO captures (datetime, file_path, ocr_title, ocr_content, url, should_ocr_content, ocr_time, application_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (datetime, file_path, ocr_title, ocr_content, url, int(should_ocr_content), ocr_time, application_name))
 
     conn.commit()
     conn.close()
@@ -80,15 +81,15 @@ def remove_record(record_id):
     conn.close()
     logger.debug("Record removed successfully.")
 
-def update_record(record_id, datetime, file_path, ocr_title, ocr_content, url, should_ocr_content, application_name):
+def update_record(record_id, datetime, file_path, ocr_title, ocr_content, url, should_ocr_content, ocr_time, application_name):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute('''
         UPDATE captures
-        SET datetime = ?, file_path = ?, ocr_title = ?, ocr_content = ?, url = ?, should_ocr_content = ?, application_name = ?
+        SET datetime = ?, file_path = ?, ocr_title = ?, ocr_content = ?, url = ?, should_ocr_content = ?, ocr_time = ?, application_name = ?
         WHERE id = ?
-    ''', (datetime, file_path, ocr_title, ocr_content, url, int(should_ocr_content), application_name, record_id))
+    ''', (datetime, file_path, ocr_title, ocr_content, url, int(should_ocr_content), ocr_time, application_name, record_id))
 
     conn.commit()
     conn.close()

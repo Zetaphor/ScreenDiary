@@ -102,6 +102,8 @@ def process_display():
                 os.remove(screenshot_file)
                 return
 
+    ocr_time = 0
+    ocr_start_time = time.time()
     # Extract tht titlebar and OCR it
     crop_data = crop_image(capture)
     titlebar_str = ""
@@ -131,6 +133,7 @@ def process_display():
         else:
             content_str = ocr_content_live(crop_data[0])
 
+    ocr_time = time.time() - ocr_start_time
     capture_result = {
         'datetime': datetime_string,
         'file_path': screenshot_file,
@@ -138,6 +141,7 @@ def process_display():
         'ocr_content': content_str,
         'application_name': application_name,
         'should_ocr_content': should_ocr_content,
+        'ocr_time': ocr_time,
         'url': ''
     }
 
