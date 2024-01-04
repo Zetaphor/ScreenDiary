@@ -30,3 +30,8 @@ def empty_folder(folder_path):
                     shutil.rmtree(file_path)
             except Exception as e:
                 logger.error('Failed to delete %s. Reason: %s' % (file_path, e))
+
+# Read a file line by line, ignoring comments
+def get_ocr_ignore_list(file_path):
+    with open(file_path, 'r') as file:
+        return [line.strip() for line in file if not line.startswith('#')]
