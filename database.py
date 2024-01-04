@@ -30,7 +30,7 @@ def initialize_tables(cursor):
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS captures (
             id INTEGER PRIMARY KEY,
-            timestamp DATETIME,
+            datetime DATETIME,
             file_path TEXT,
             ocr_title TEXT,
             ocr_content TEXT,
@@ -54,7 +54,7 @@ def add_record(timestamp, file_path, ocr_title, ocr_content, application_name):
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO captures (timestamp, file_path, ocr_title, ocr_content, application_name)
+        INSERT INTO captures (datetime, file_path, ocr_title, ocr_content, application_name)
         VALUES (?, ?, ?, ?, ?)
     ''', (timestamp, file_path, ocr_title, ocr_content, application_name))
 

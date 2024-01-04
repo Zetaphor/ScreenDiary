@@ -3,3 +3,4 @@ ocr/*.txt
 __pycache__
 logs/
 /**/*.db
+/**/*.sqlite
