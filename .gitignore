@@ -1,5 +1,5 @@
 screenshots/**/*.png
-ocr/*.txt
+ocr/
 __pycache__
 logs/
 /**/*.db

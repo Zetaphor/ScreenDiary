@@ -112,7 +112,7 @@ def process_display():
 
 # Clear contents of image folders in debug mode
 if DEBUG:
-    logger.debug('Debug enabled, deleting images...')
+    logger.debug('Debug enabled, deleting images and OCR...')
     for folder in ['screenshots', 'ocr']:
         for filename in os.listdir(folder):
             if filename == '.gitkeep': continue
