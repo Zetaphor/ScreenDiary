@@ -9,6 +9,7 @@ logger = get_logger()
 
 DB_PATH = os.getenv('DB_PATH')
 DEBUG = bool(int(os.getenv('DEBUG')))
+DEBUG_RESET = bool(int(os.getenv('DEBUG_RESET')))
 
 def check_and_initialize_db():
     db_exists = os.path.exists(DB_PATH)
@@ -18,6 +19,10 @@ def check_and_initialize_db():
 
     if not db_exists or not check_tables_exist(cursor):
         initialize_tables(cursor)
+
+    if DEBUG_RESET:
+        logger.warning('Debug reset enabled, deleting database...')
+        reset_tables()
 
     conn.commit()
     conn.close()
