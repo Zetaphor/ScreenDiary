@@ -2,26 +2,42 @@ import subprocess
 import os
 import time
 from datetime import datetime
-import shutil
 from PIL import Image
 import pytesseract
 import imagehash
 from dotenv import load_dotenv
 from crop_image import crop_image
 from logger_config import get_logger
-from util import empty_folder
+from util import empty_folder, get_ocr_ignore_list, parse_application_name
+
 
 load_dotenv()
 
 logger = get_logger()
 
 DEBUG = bool(int(os.getenv('DEBUG')))
+DEBUG_RESET = bool(int(os.getenv('DEBUG_RESET')))
 DEBUG_OCR = bool(int(os.getenv('DEBUG_OCR')))
+
+LIVE_OCR_CONTENT = bool(int(os.getenv('LIVE_OCR_CONTENT')))
+OCR_UNKNOWN_APPLICATIONS = bool(int(os.getenv('OCR_UNKNOWN_APPLICATIONS')))
+
+ocr_ignore_list = get_ocr_ignore_list('./ocr_ignore.conf')
 
 phash = None
 dhash = None
 previous_dhash = None
 previous_phash = None
+
+if DEBUG_RESET:
+    if os.path.exists('screenshots'):
+        logger.warning('Debug reset enabled, deleting images...')
+        empty_folder('screenshots')
+
+if not DEBUG_OCR:
+    if os.path.exists('ocr'):
+        logger.warning('OCR disabled, deleting files...')
+        empty_folder('ocr')
 
 def take_screenshot(filename):
     """Takes a screenshot using KDE's spectacle tool"""
@@ -35,6 +51,23 @@ def binarize_image(image):
     img_copy = img_copy.point(lambda x: 255 if x > int(os.getenv('BINARIZATION_THRESHOLD')) else 0, mode="1")
     return image
 
+def ocr_content(image):
+    """Manually load an image and OCR its content"""
+    image = Image.open(image)
+    crop_data = crop_image(image)
+    return ocr_content_live(crop_data[0])
+
+def ocr_content_live(cropped_image):
+    """OCR the content of an image after titlebar extraction"""
+    content_str = ""
+    content = binarize_image(cropped_image)
+    if bool(int(os.getenv('ENABLE_BINARIZATION'))):
+        content = binarize_image(cropped_image)
+    content_str = pytesseract.image_to_string(content).strip()
+    if content_str is None:
+        content_str = ""
+    return content_str
+
 def process_display():
     global phash, dhash, previous_dhash, previous_phash
     if DEBUG:
@@ -45,6 +78,7 @@ def process_display():
     datetime_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     screenshot_file = f"./screenshots/{datetime_string}.png"
     take_screenshot(screenshot_file)
+    logger.debug(f"Screenshot taken: {screenshot_file}")
 
     capture = Image.open(f"./screenshots/{datetime_string}.png")
 
@@ -79,23 +113,34 @@ def process_display():
         if titlebar_str is None:
             titlebar_str = ""
 
+    application_name = parse_application_name(titlebar_str)
+
     # Extract the content and OCR it
     content_str = ""
-    content = binarize_image(crop_data[0])
-    if bool(int(os.getenv('ENABLE_BINARIZATION'))):
-        content = binarize_image(crop_data[0])
-    content_str = pytesseract.image_to_string(content).strip()
-    if content_str is None:
-        content_str = ""
+    should_ocr_content = True
+    if LIVE_OCR_CONTENT:
+        if application_name == "Unknown":
+            if OCR_UNKNOWN_APPLICATIONS:
+                content_str = ocr_content_live(crop_data[0])
+            else:
+                should_ocr_content = False
+                logger.debug('Skipping OCR for unknown application')
+        elif application_name in ocr_ignore_list:
+            should_ocr_content = False
+            logger.debug('Skipping OCR for ignored application ' + application_name)
+        else:
+            content_str = ocr_content_live(crop_data[0])
 
     capture_result = {
         'datetime': datetime_string,
         'file_path': screenshot_file,
         'ocr_title': titlebar_str,
-        'ocr_content': content_str
+        'ocr_content': content_str,
+        'application_name': application_name,
+        'should_ocr_content': should_ocr_content,
+        'url': ''
     }
 
-    logger.info(f"Screenshot taken: {screenshot_file}")
     previous_dhash = dhash
     previous_phash = phash
 
@@ -103,12 +148,14 @@ def process_display():
         os.makedirs(f"./ocr", exist_ok=True)
 
         # Write OCR title to a file
-        with open(f"./ocr/{datetime_string}_title.txt", "w") as file:
-            file.write(titlebar_str)
+        if len(titlebar_str) > 0:
+            with open(f"./ocr/{datetime_string}_title.txt", "w") as file:
+                file.write(titlebar_str)
 
         # Write OCR content to a file
-        with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
-            file.write(content_str)
+        if len(content_str) > 0:
+            with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
+                file.write(content_str)
 
     if DEBUG:
         end_time = time.time()
@@ -116,13 +163,3 @@ def process_display():
         logger.debug(f"Executed in {elapsed_time} seconds")
 
     return capture_result
-
-if DEBUG:
-    if os.path.exists('screenshots'):
-        logger.debug('Debug enabled, deleting images...')
-        empty_folder('screenshots')
-
-if not DEBUG_OCR:
-    if os.path.exists('ocr'):
-        logger.debug('OCR disabled, deleting files...')
-        empty_folder('ocr')
