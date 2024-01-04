@@ -39,6 +39,8 @@ def process_display():
     if DEBUG:
         start_time = time.time()
 
+    os.makedirs(f"./screenshots", exist_ok=True)
+
     datetime_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     screenshot_file = f"./screenshots/{datetime_string}.png"
     take_screenshot(screenshot_file)
