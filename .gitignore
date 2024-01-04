@@ -2,3 +2,4 @@ screenshots/**/*.png
 ocr/*.txt
 __pycache__
 logs/
+/**/*.db
