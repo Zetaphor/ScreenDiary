@@ -73,6 +73,8 @@ def process_display():
         if bool(os.getenv('ENABLE_BINARIZATION')):
             titlebar = binarize_image(crop_data[1])
         titlebar_str = pytesseract.image_to_string(titlebar).strip()
+        if titlebar_str is None:
+            titlebar_str = ""
 
     # Extract the content and OCR it
     content_str = ""
@@ -80,6 +82,8 @@ def process_display():
     if bool(int(os.getenv('ENABLE_BINARIZATION'))):
         content = binarize_image(crop_data[0])
     content_str = pytesseract.image_to_string(content).strip()
+    if content_str is None:
+        content_str = ""
 
     capture_result = {
         'datetime': datetime_string,
@@ -92,11 +96,6 @@ def process_display():
     previous_dhash = dhash
     previous_phash = phash
 
-    if DEBUG:
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        logger.debug(f"Function executed in {elapsed_time} seconds")
-
     if DEBUG_OCR:
         os.makedirs(f"./ocr", exist_ok=True)
 
@@ -107,6 +106,11 @@ def process_display():
         # Write OCR content to a file
         with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
             file.write(content_str)
+
+    if DEBUG:
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        logger.debug(f"Executed in {elapsed_time} seconds")
 
     return capture_result
 
