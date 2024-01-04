@@ -21,6 +21,7 @@ def check_and_initialize_db():
 
     conn.commit()
     conn.close()
+    logger.info('Database loaded successfully.')
 
 def check_tables_exist(cursor):
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='captures'")
@@ -37,7 +38,7 @@ def initialize_tables(cursor):
             application_name TEXT
         )
     ''')
-    logger.debug("Database tables initialized.")
+    logger.debug("Database tables created.")
 
 def reset_tables():
     conn = sqlite3.connect(DB_PATH)
@@ -49,18 +50,18 @@ def reset_tables():
     conn.commit()
     conn.close()
 
-def add_record(timestamp, file_path, ocr_title, ocr_content, application_name):
+def add_record(datetime, file_path, ocr_title, ocr_content, application_name):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute('''
         INSERT INTO captures (datetime, file_path, ocr_title, ocr_content, application_name)
         VALUES (?, ?, ?, ?, ?)
-    ''', (timestamp, file_path, ocr_title, ocr_content, application_name))
+    ''', (datetime, file_path, ocr_title, ocr_content, application_name))
 
     conn.commit()
     conn.close()
-    print("Record added successfully.")
+    # logger.debug("Record added successfully.")
 
 def remove_record(record_id):
     conn = sqlite3.connect(DB_PATH)
@@ -70,22 +71,18 @@ def remove_record(record_id):
 
     conn.commit()
     conn.close()
-    print("Record removed successfully.")
+    logger.debug("Record removed successfully.")
 
-def update_record(record_id, timestamp, file_path, ocr_title, ocr_content, application_name):
+def update_record(record_id, datetime, file_path, ocr_title, ocr_content, application_name):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute('''
         UPDATE captures
-        SET timestamp = ?, file_path = ?, ocr_title = ?, ocr_content = ?, application_name = ?
+        SET datetime = ?, file_path = ?, ocr_title = ?, ocr_content = ?, application_name = ?
         WHERE id = ?
-    ''', (timestamp, file_path, ocr_title, ocr_content, application_name, record_id))
+    ''', (datetime, file_path, ocr_title, ocr_content, application_name, record_id))
 
     conn.commit()
     conn.close()
-    print("Record updated successfully.")
-
-
-# if DEBUG:
-  # reset_tables(DB_PATH)
+    logger.debug("Record updated successfully.")
