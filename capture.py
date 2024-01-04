@@ -33,7 +33,7 @@ def binarize_image(image):
     img_copy = img_copy.point(lambda x: 255 if x > int(os.getenv('BINARIZATION_THRESHOLD')) else 0, mode="1")
     return image
 
-def process_screenshot():
+def process_display():
     global phash, dhash, previous_dhash, previous_phash
     if DEBUG:
         start_time = time.time()
@@ -66,19 +66,26 @@ def process_screenshot():
 
     # Extract tht titlebar and OCR it
     crop_data = crop_image(capture)
+    titlebar_str = ""
     if (len(crop_data) == 2):
-        with open(f"./ocr/{datetime_string}_titlebar.txt", "w") as file:
+        titlebar = binarize_image(crop_data[1])
+        if bool(os.getenv('ENABLE_BINARIZATION')):
             titlebar = binarize_image(crop_data[1])
-            if bool(os.getenv('ENABLE_BINARIZATION')):
-                titlebar = binarize_image(crop_data[1])
-            file.write(pytesseract.image_to_string(titlebar))
+        titlebar_str = pytesseract.image_to_string(titlebar).strip()
 
     # Extract the content and OCR it
-    with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
+    content_str = ""
+    content = binarize_image(crop_data[0])
+    if bool(int(os.getenv('ENABLE_BINARIZATION'))):
         content = binarize_image(crop_data[0])
-        if bool(int(os.getenv('ENABLE_BINARIZATION'))):
-            content = binarize_image(crop_data[0])
-        file.write(pytesseract.image_to_string(content))
+    content_str = pytesseract.image_to_string(content).strip()
+
+    capture_result = {
+        'datetime': datetime_string,
+        'file': screenshot_file,
+        'ocr_title': titlebar_str,
+        'ocr_content': content_str
+    }
 
     logger.info(f"Screenshot taken: {screenshot_file}")
     previous_dhash = dhash
@@ -89,13 +96,14 @@ def process_screenshot():
         elapsed_time = end_time - start_time
         logger.debug(f"Function executed in {elapsed_time} seconds")
 
+    return capture_result
+
 # Clear contents of image folders in debug mode
 if DEBUG:
     logger.debug('Debug enabled, deleting images...')
     for folder in ['screenshots', 'ocr']:
         for filename in os.listdir(folder):
-            if filename == '.gitkeep':  # Skip .gitkeep files
-                continue
+            if filename == '.gitkeep': continue
             file_path = os.path.join(folder, filename)
             try:
                 if os.path.isfile(file_path) or os.path.islink(file_path):
