@@ -116,12 +116,9 @@ def process_display():
 
     return capture_result
 
-# Clear contents of image folders in debug mode
-if DEBUG:
-    logger.debug('Debug enabled, deleting images and OCR...')
-    for folder in ['screenshots', 'ocr']:
+def empty_folder(folder_path):
+    for folder in [folder_path]:
         for filename in os.listdir(folder):
-            if filename == '.gitkeep': continue
             file_path = os.path.join(folder, filename)
             try:
                 if os.path.isfile(file_path) or os.path.islink(file_path):
@@ -130,3 +127,13 @@ if DEBUG:
                     shutil.rmtree(file_path)
             except Exception as e:
                 logger.error('Failed to delete %s. Reason: %s' % (file_path, e))
+
+if DEBUG:
+    if os.path.exists('screenshots'):
+        logger.debug('Debug enabled, deleting images...')
+        empty_folder('screenshots')
+
+if not DEBUG_OCR:
+    if os.path.exists('ocr'):
+        logger.debug('OCR disabled, deleting files...')
+        empty_folder('ocr')
