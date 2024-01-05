@@ -40,12 +40,12 @@ def initialize_tables(cursor):
             file_path TEXT,
             ocr_title TEXT,
             ocr_content TEXT,
-            ocr_time INTEGER,
+            ocr_time INTEGER, -- Time in milliseconds it took to run OCR, including title
             should_ocr_content INTEGER,
             application_name TEXT,
             url TEXT,
-            url_time NUMBER,
-            url_partial INTEGER
+            url_time NUMBER, -- How long ago in minutes the URL was matched in history
+            url_partial INTEGER -- Whether the URL was a partial match
         )
     ''')
     logger.debug("Database tables created.")
