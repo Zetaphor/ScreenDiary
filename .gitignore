@@ -1,5 +1,4 @@
-screenshots/
-ocr/
+captures/
 __pycache__
 logs/
 /**/*.db

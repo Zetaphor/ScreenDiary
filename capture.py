@@ -34,14 +34,14 @@ previous_dhash = None
 previous_phash = None
 
 if DEBUG_RESET:
-    if os.path.exists('screenshots'):
+    if os.path.exists('./captures/screenshots'):
         logger.warning('Debug reset enabled, deleting images...')
-        empty_folder('screenshots')
+        empty_folder('captures/screenshots')
 
 if not DEBUG_OCR:
-    if os.path.exists('ocr'):
+    if os.path.exists('./captures/ocr'):
         logger.warning('OCR disabled, deleting files...')
-        empty_folder('ocr')
+        empty_folder('captures/ocr')
 
 def take_screenshot(filename):
     """Takes a screenshot using KDE's spectacle tool"""
@@ -77,14 +77,14 @@ def process_display():
     if DEBUG:
         start_time = time.time()
 
-    os.makedirs(f"./screenshots", exist_ok=True)
+    os.makedirs(f"./captures/screenshots", exist_ok=True)
 
     datetime_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    screenshot_file = f"./screenshots/{datetime_string}.png"
+    screenshot_file = f"./captures/screenshots/{datetime_string}.png"
     take_screenshot(screenshot_file)
     logger.debug(f"Screenshot taken: {screenshot_file}")
 
-    capture = Image.open(f"./screenshots/{datetime_string}.png")
+    capture = Image.open(f"./captures/screenshots/{datetime_string}.png")
 
     # Check if the screenshot is identical to the previous one
     if bool(int(os.getenv('ENABLE_PERCEPTUAL_HASHING'))):
@@ -169,16 +169,16 @@ def process_display():
     previous_phash = phash
 
     if DEBUG_OCR:
-        os.makedirs(f"./ocr", exist_ok=True)
+        os.makedirs(f"./captures/ocr", exist_ok=True)
 
         # Write OCR title to a file
         if len(titlebar_str) > 0:
-            with open(f"./ocr/{datetime_string}_title.txt", "w") as file:
+            with open(f"./captures/ocr/{datetime_string}_title.txt", "w") as file:
                 file.write(titlebar_str)
 
         # Write OCR content to a file
         if len(content_str) > 0:
-            with open(f"./ocr/{datetime_string}_content.txt", "w") as file:
+            with open(f"./captures/ocr/{datetime_string}_content.txt", "w") as file:
                 file.write(content_str)
 
     if DEBUG:
