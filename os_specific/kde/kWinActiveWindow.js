@@ -9,7 +9,6 @@ if (windowType(activeClient) == "normalWindow") {
     "updateActiveWindow",
     activeClient.resourceName,
     activeClient.resourceClass,
-    windowType(activeClient),
     activeClient.caption
   );
 }

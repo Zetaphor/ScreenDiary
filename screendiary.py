@@ -20,8 +20,8 @@ class DbusInterface(ServiceInterface):
         super().__init__('com.screendiary.bridge')
 
     @method()
-    def updateActiveWindow(self, resource_name: "s", resource_class: "s", window_type: "s", caption: "s"):
-        logger.debug(f'Active window: {resource_name}, {resource_class}, {window_type}, {caption}')
+    def updateActiveWindow(self, resource_name: "s", resource_class: "s", caption: "s"):
+        logger.debug(f'Active window: {resource_name}, {resource_class}, {caption}')
 
 async def run_dbus_server():
     bus = await MessageBus().connect()
