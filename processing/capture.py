@@ -24,7 +24,7 @@ OCR_UNKNOWN_APPLICATIONS = bool(int(os.getenv('OCR_UNKNOWN_APPLICATIONS')))
 CAPTURE_BROWSER_URL = bool(int(os.getenv('CAPTURE_BROWSER_URL')))
 BROWSER_HISTORY_MATCH_TIME_RANGE = int(os.getenv('BROWSER_HISTORY_MATCH_TIME_RANGE'))
 
-ocr_ignore_list = get_ocr_ignore_list('./ocr_ignore.conf')
+ocr_ignore_list = get_ocr_ignore_list('./ignore_ocr.conf')
 
 phash = None
 dhash = None
