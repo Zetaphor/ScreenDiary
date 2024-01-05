@@ -21,7 +21,7 @@ def capture_timer(func, callback):
 def process_display_result(result):
     if result is None:
         return
-    add_record(result['datetime'], result['file_path'], result['ocr_title'], result['ocr_content'], result['url'], result['should_ocr_content'], result['ocr_time'], result['application_name'])
+    add_record(result['datetime'], result['file_path'], result['ocr_title'], result['ocr_content'], result['url'], result['url_time'], result['url_partial'], result['should_ocr_content'], result['ocr_time'], result['application_name'])
 
 def main():
     check_and_initialize_db()

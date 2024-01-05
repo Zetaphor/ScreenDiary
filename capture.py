@@ -8,7 +8,8 @@ import imagehash
 from dotenv import load_dotenv
 from crop_image import crop_image
 from logger_config import get_logger
-from util import empty_folder, get_ocr_ignore_list, parse_application_name
+from util import empty_folder, get_ocr_ignore_list, parse_application_name, application_is_browser
+from history_parser import find_closest_history_entry
 
 
 load_dotenv()
@@ -21,6 +22,9 @@ DEBUG_OCR = bool(int(os.getenv('DEBUG_OCR')))
 
 LIVE_OCR_CONTENT = bool(int(os.getenv('LIVE_OCR_CONTENT')))
 OCR_UNKNOWN_APPLICATIONS = bool(int(os.getenv('OCR_UNKNOWN_APPLICATIONS')))
+
+CAPTURE_BROWSER_URL = bool(int(os.getenv('CAPTURE_BROWSER_URL')))
+BROWSER_HISTORY_MATCH_TIME_RANGE = int(os.getenv('BROWSER_HISTORY_MATCH_TIME_RANGE'))
 
 ocr_ignore_list = get_ocr_ignore_list('./ocr_ignore.conf')
 
@@ -115,7 +119,21 @@ def process_display():
         if titlebar_str is None:
             titlebar_str = ""
 
-    application_name = parse_application_name(titlebar_str)
+    title_text, application_name = parse_application_name(titlebar_str)
+
+    # Attempt to capture the URL from the titlebar
+    capture_url = ""
+    url_time = 0
+    url_partial = False
+    if CAPTURE_BROWSER_URL:
+        if application_is_browser(application_name):
+            closest_entry, time_diff_in_minutes, partial_match = find_closest_history_entry(datetime_string, title_text)
+            if closest_entry is not None:
+                capture_url = closest_entry[1]
+                url_time = time_diff_in_minutes
+                url_partial = partial_match
+            else:
+                logger.debug(f"Could not find URL for {title_text} in {application_name} history.")
 
     # Extract the content and OCR it
     content_str = ""
@@ -137,12 +155,14 @@ def process_display():
     capture_result = {
         'datetime': datetime_string,
         'file_path': screenshot_file,
-        'ocr_title': titlebar_str,
+        'ocr_title': title_text,
         'ocr_content': content_str,
         'application_name': application_name,
         'should_ocr_content': should_ocr_content,
         'ocr_time': ocr_time,
-        'url': ''
+        'url': capture_url,
+        'url_time': url_time,
+        'url_partial': url_partial
     }
 
     previous_dhash = dhash

@@ -2,3 +2,5 @@ imagehash
 pytesseract
 Pillow
 loguru
+browser-history
+tzlocal
