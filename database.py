@@ -8,14 +8,8 @@ load_dotenv()
 logger = get_logger()
 
 DB_PATH = os.getenv('DB_PATH')
-DEBUG = bool(int(os.getenv('DEBUG')))
-DEBUG_RESET = bool(int(os.getenv('DEBUG_RESET')))
 
 def check_and_initialize_db():
-    if DEBUG_RESET:
-        logger.warning('Debug reset enabled, deleting database...')
-        os.unlink(DB_PATH)
-
     db_exists = os.path.exists(DB_PATH)
 
     conn = sqlite3.connect(DB_PATH)

@@ -7,7 +7,7 @@ import imagehash
 from dotenv import load_dotenv
 from processing.crop_image import crop_image
 from logger_config import get_logger
-from util import empty_folder, get_ocr_ignore_list, parse_application_name, application_is_browser
+from util import get_ocr_ignore_list, parse_application_name, application_is_browser
 from history_parser import find_closest_history_entry
 from processing.screenshot import take_screenshot
 
@@ -16,7 +16,6 @@ load_dotenv()
 logger = get_logger()
 
 DEBUG = bool(int(os.getenv('DEBUG')))
-DEBUG_RESET = bool(int(os.getenv('DEBUG_RESET')))
 DEBUG_OCR = bool(int(os.getenv('DEBUG_OCR')))
 
 LIVE_OCR_CONTENT = bool(int(os.getenv('LIVE_OCR_CONTENT')))
@@ -31,16 +30,6 @@ phash = None
 dhash = None
 previous_dhash = None
 previous_phash = None
-
-if DEBUG_RESET:
-    if os.path.exists('./captures/screenshots'):
-        logger.warning('Debug reset enabled, deleting images...')
-        empty_folder('captures/screenshots')
-
-if not DEBUG_OCR:
-    if os.path.exists('./captures/ocr'):
-        logger.warning('OCR disabled, deleting files...')
-        empty_folder('captures/ocr')
 
 def binarize_image(image):
     """Convert an image to grayscale and binarize it"""
