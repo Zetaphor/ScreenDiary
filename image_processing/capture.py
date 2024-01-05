@@ -6,11 +6,10 @@ from PIL import Image
 import pytesseract
 import imagehash
 from dotenv import load_dotenv
-from crop_image import crop_image
+from image_processing.crop_image import crop_image
 from logger_config import get_logger
 from util import empty_folder, get_ocr_ignore_list, parse_application_name, application_is_browser
 from history_parser import find_closest_history_entry
-
 
 load_dotenv()
 

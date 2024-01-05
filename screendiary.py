@@ -1,10 +1,9 @@
 import threading
 import os
 from dotenv import load_dotenv
-from capture import process_display
+from image_processing.capture import process_display
 from logger_config import get_logger
 from database import check_and_initialize_db, add_record
-from util import parse_application_name
 
 load_dotenv()
 
