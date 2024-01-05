@@ -1,17 +1,18 @@
-console.info('Loaded');
 const activeClient = workspace.activeClient
-console.info('ACTIVE CLIENT!', workspace.activeClient.caption);
-console.info("ACTIVECLIENT:::", "name:", activeClient.resourceName, "class:", activeClient.resourceClass, "caption:", activeClient.caption);
-console.info("ACTIVECLIENT:::type:", activeClient.windowType, windowType(activeClient), (activeClient.normalWindow ? "" : "not ") + "normal", (activeClient.specialWindow ? "" : "not ") + "special");
+// console.info('ScreenDiary Debug | Name: ', activeClient.resourceName, ' | Class:', activeClient.resourceClass, ' | Type:', windowType(activeClient), ' | Text:', activeClient.caption);
 
-callDBus(
-  "com.screendiary.bridge",
-  "/com/screendiary/bridge",
-  "com.screendiary.bridge",
-  "updateActiveWindow",
-  activeClient.resourceName,
-  activeClient.caption
-);
+if (windowType(activeClient) == "normalWindow") {
+  callDBus(
+    "com.screendiary.bridge",
+    "/com/screendiary/bridge",
+    "com.screendiary.bridge",
+    "updateActiveWindow",
+    activeClient.resourceName,
+    activeClient.resourceClass,
+    windowType(activeClient),
+    activeClient.caption
+  );
+}
 
 function windowType(win) {
   var windowTypes = [
