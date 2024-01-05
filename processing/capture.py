@@ -55,10 +55,14 @@ def ocr_content_live(cropped_image):
         content_str = ""
     return content_str
 
-def process_display():
+def process_display(use_title_ocr=True, window_data=None):
+    """
+    Take a screenshot and process it to extract the titlebar and content
+    If use_title_ocr is True, then OCR the titlebar and content, otherwise
+    use window_data to set the window titlebar
+    """
     global phash, dhash, previous_dhash, previous_phash
-    if DEBUG:
-        start_time = time.time()
+    start_time = time.time()
 
     os.makedirs(f"./captures/screenshots", exist_ok=True)
 
@@ -92,20 +96,27 @@ def process_display():
                 os.remove(screenshot_file)
                 return
 
-    ocr_time = 0
-    ocr_start_time = time.time()
-    # Extract tht titlebar and OCR it
-    crop_data = crop_image(capture)
     titlebar_str = ""
-    if (len(crop_data) == 2):
-        titlebar = binarize_image(crop_data[1])
-        if bool(os.getenv('ENABLE_BINARIZATION')):
-            titlebar = binarize_image(crop_data[1])
-        titlebar_str = pytesseract.image_to_string(titlebar).strip()
-        if titlebar_str is None:
-            titlebar_str = ""
+    title_text = ""
+    application_name = "Unknown"
 
-    title_text, application_name = parse_application_name(titlebar_str)
+    if use_title_ocr:
+        ocr_time = 0
+        ocr_start_time = time.time()
+        # Extract the titlebar and OCR it
+        crop_data = crop_image(capture)
+        if (len(crop_data) == 2):
+            titlebar = binarize_image(crop_data[1])
+            if bool(os.getenv('ENABLE_BINARIZATION')):
+                titlebar = binarize_image(crop_data[1])
+            titlebar_str = pytesseract.image_to_string(titlebar).strip()
+            if titlebar_str is None:
+                titlebar_str = ""
+            title_text, application_name = parse_application_name(titlebar_str)
+    else:
+        titlebar_str = window_data['title']
+        title_text = window_data['text']
+        application_name = window_data['application_name']
 
     # Attempt to capture the URL from the titlebar
     capture_url = ""
@@ -167,9 +178,8 @@ def process_display():
             with open(f"./captures/ocr/{datetime_string}_content.txt", "w") as file:
                 file.write(content_str)
 
-    if DEBUG:
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        logger.debug(f"Executed in {elapsed_time} seconds")
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    logger.debug(f"Executed in {elapsed_time} seconds")
 
     return capture_result
