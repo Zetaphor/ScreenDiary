@@ -75,7 +75,10 @@ def process_display():
 
     datetime_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     screenshot_file = f"./captures/screenshots/{datetime_string}.png"
-    take_screenshot(screenshot_file)
+    if not take_screenshot(screenshot_file):
+        logger.error(f"Failed to take screenshot: {screenshot_file}")
+        return
+
     logger.debug(f"Screenshot taken: {screenshot_file}")
 
     capture = Image.open(f"./captures/screenshots/{datetime_string}.png")
