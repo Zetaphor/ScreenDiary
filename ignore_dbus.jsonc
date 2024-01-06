@@ -1,12 +1,44 @@
+/**
+ * This JSON file contains a list of entries used to determine whether a given window data
+ * should be ignored in DBus and OCR processing. Each entry is an object with key-value pairs
+ * representing the conditions to be checked. These conditions can be for exact matches or
+ * partial (substring) matches.
+ *
+ * Structure of Each Entry:
+ * {
+ *   "key": "value",            // The 'key' is the field name in the window data to be checked.
+ *                              // The 'value' is the string to match against the window data's field value.
+ *   "key_exact": boolean       // Optional. When set to true, requires an exact match of 'value' with the window data's field value.
+ *                              // When false or absent, a partial match is sufficient.
+ * }
+ *
+ * Example Entry:
+ * {
+ *   "name": "firefox-bin",     // The 'name' field in the window data should match "code" (partial match allowed).
+ *   "name_exact": false,       // 'name_exact' is false, so partial match is used for 'name'.
+ *   "res": "FFPWA",            // The 'res' field in the window data should match "FFPWA" (partial match allowed).
+ *   "res_exact": false,        // 'res_exact' is false, so partial match is used for 'res'.
+ *   "caption": "Discord",      // The 'caption' field in the window data should match "Discord" (partial match allowed).
+ *   "caption_exact": false     // 'caption_exact' is false, so partial match is used for 'caption'.
+ * }
+ *
+ * Note:
+ * - Each entry in the list is an independent condition set.
+ * - Each key is not required to be present in the ignore entry. Only the key-value pairs that are present are used.
+ * - The processing logic will iterate through each entry and apply the conditions to the given window data.
+ * - Only if all of an entry's conditions are satisfied by the window data is the data is considered to be in the ignore list.
+ * - All values are case-insensitive, keys are not.
+ */
 [
   {
-    "name": "code",
-    "name_exact": false
+    "name": "code"
   },
   {
     "res": "FFPWA",
     "res_exact": false,
     "caption": "Discord",
-    "caption_exact": false
+    "caption_exact": false,
+    "name": "Discord",
+    "name_exact": true
   }
 ]

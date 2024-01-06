@@ -1,8 +1,45 @@
-/*
-This file contains the window titles that should be ignored by the OCR
-The window will be ignored if the title contains the entry
-Titles are case insensitive
-*/
+/**
+ * JSON Structure for OCR Ignore List
+ *
+ * This JSON file contains a list of entries that define conditions to determine if a given string
+ * should be ignored in OCR processing. Each entry is an object with a specific key that represents
+ * the type of condition to be applied to the string.
+ *
+ * Supported Conditions:
+ * - "startswith": The string should start with the specified value.
+ * - "endswith":   The string should end with the specified value.
+ * - "contains":   The string should contain the specified value anywhere within it.
+ * - "equals":     The string should exactly match the specified value.
+ *
+ * Structure of Each Entry:
+ * {
+ *   "condition_type": "condition_value"
+ * }
+ *
+ * - "condition_type" is one of "startswith", "endswith", "contains", or "equals".
+ * - "condition_value" is the string to check against the input string.
+ *
+ * Example Entries:
+ * {
+ *   "startswith": "Visual Studio Code" // The string should start with "Visual Studio Code".
+ * },
+ * {
+ *   "endswith": "Mozilla Firefox"     // The string should end with "Mozilla Firefox".
+ * },
+ * {
+ *   "contains": "email"              // The string should contain "email".
+ * },
+ * {
+ *   "equals": "Google Drive"        // The string should be exactly "Google Drive".
+ * }
+ *
+ * Note:
+ * - The function `in_ocr_ignore` will iterate through each entry and apply the corresponding condition.
+ * - If any entry's condition is met by the input string, the function returns True, indicating the string should be ignored.
+ * - Each condition type is not required to be present. Only the conditions that are present are used.
+ * - All condition types and values are case-insensitive.
+ */
+
 [
   {
     "startswith": "Visual Studio Code"
