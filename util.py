@@ -49,6 +49,7 @@ def in_dbus_ignore(windowData):
     global dbus_ignore_entries
     try:
         for entry in dbus_ignore_entries:
+            print(entry)
             match = True
             for key in entry:
                 if key.endswith('_exact'):
@@ -99,17 +100,9 @@ def load_ignore_lists():
         logger.info(f"Loaded {len(dbus_ignore_entries)} DBus ignore entries")
     else:
         logger.error("Failed to load DBus ignore entries")
+
     ocr_ignore_entries = load_jsonc('ignore_ocr.jsonc')
     if ocr_ignore_entries is not None:
         logger.info(f"Loaded {len(ocr_ignore_entries)} OCR ignore entries")
     else:
         logger.error("Failed to load OCR ignore entries")
-
-# Need to test new syntax for in_dbus_ignore
-test_data = {
-    "name": "test",
-    "res": "FFPWA",
-    "caption": "Discord",
-}
-
-print(in_dbus_ignore(test_data))
