@@ -1,5 +1,5 @@
 /**
- * JSON Structure for OCR Ignore List
+ * OCR Window Title Ignore List
  *
  * This JSON file contains a list of entries that define conditions to determine if a given string
  * should be ignored in OCR processing. Each entry is an object with a specific key that represents

@@ -1,4 +1,6 @@
 /**
+ * DBus Window Title Ignore List
+ *
  * This JSON file contains a list of entries used to determine whether a given window data
  * should be ignored in DBus and OCR processing. Each entry is an object with key-value pairs
  * representing the conditions to be checked. These conditions can be for exact matches or
@@ -27,7 +29,7 @@
  * - Each key is not required to be present in the ignore entry. Only the key-value pairs that are present are used.
  * - The processing logic will iterate through each entry and apply the conditions to the given window data.
  * - Only if all of an entry's conditions are satisfied by the window data is the data is considered to be in the ignore list.
- * - All values are case-insensitive, keys are not.
+ * - All values are case-insensitive, keys are case sensitive.
  */
 [
   {
