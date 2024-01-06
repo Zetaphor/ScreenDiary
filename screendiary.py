@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from processing.capture import process_display
 from logger_config import get_logger
 from database import check_and_initialize_db, add_record
-from util import empty_folder, load_ignore_lists
+from util import empty_folder, load_ignore_lists, load_application_name_remaps, parse_application_name
 from os_specific.kde.run_kwin_script import run_window_script
 from dbus_next.aio import MessageBus
 from dbus_next.service import ServiceInterface, method
@@ -21,7 +21,9 @@ class DbusInterface(ServiceInterface):
 
     @method()
     def updateActiveWindow(self, resource_name: "s", resource_class: "s", caption: "s"):
-        logger.debug(f'Active window: {resource_name}, {resource_class}, {caption}')
+        logger.debug(f'Active Window | Name: {resource_name}, Class: {resource_class}, Caption: {caption}')
+        result = process_display(False, {'name': resource_name, 'class': resource_class, 'caption': caption})
+        save_display_result(result)
 
 async def run_dbus_server():
     bus = await MessageBus().connect()
@@ -55,6 +57,7 @@ def main():
     debug_reset()
     check_and_initialize_db()
     load_ignore_lists()
+    load_application_name_remaps()
     logger.debug('Window title method: ' + os.getenv('WINDOW_TITLE_METHOD'))
 
     if os.getenv('WINDOW_TITLE_METHOD') == 'kde':

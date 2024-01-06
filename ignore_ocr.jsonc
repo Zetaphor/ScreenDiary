@@ -2,8 +2,8 @@
  * OCR Window Title Ignore List
  *
  * This JSON file contains a list of entries that define conditions to determine if a given string
- * should be ignored in OCR processing. Each entry is an object with a specific key that represents
- * the type of condition to be applied to the string.
+ * should be ignored in OCR processing when using the OCR title mode. Each entry is an object with
+ * a specific key that represents the type of condition to be applied to the string.
  *
  * Supported Conditions:
  * - "startswith": The string should start with the specified value.
@@ -43,14 +43,14 @@
 [
   {
     "startswith": "Visual Studio Code"
-  },
-  {
-    "endswith": "Example"
-  },
-  {
-    "contains": "Example"
-  },
-  {
-    "equals": "Example"
   }
+  // {
+  //   "endswith": "Yakuake"
+  // },
+  // {
+  //   "contains": "Discord"
+  // },
+  // {
+  //   "equals": "Drive"
+  // }
 ]

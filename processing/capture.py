@@ -5,7 +5,7 @@ from PIL import Image
 import imagehash
 from dotenv import load_dotenv
 from logger_config import get_logger
-from util import in_dbus_ignore, in_ocr_ignore
+from util import in_dbus_ignore, in_ocr_ignore, get_application_remap, parse_application_name
 from processing.ocr import ocr_titlebar, ocr_content
 from processing.browser import capture_url
 from processing.screenshot import take_screenshot
@@ -70,18 +70,23 @@ def process_display(use_title_ocr=True, window_data=None):
                 return
 
     application_name = "Unknown"
+    remapped_name = None
     titlebar_str = ""
     title_text = ""
+    ocr_time = 0
+    ocr_start_time = time.time()
 
     if use_title_ocr:
-        ocr_time = 0
-        ocr_start_time = time.time()
         # Extract the titlebar and OCR it
         titlebar_str, title_text, application_name = ocr_titlebar(capture)
+        remapped_name = get_application_remap(window_data, True)
+        if remapped_name is not None:
+            logger.debug(f"Remapped application name: {application_name} -> {remapped_name}")
     else:
-        titlebar_str = window_data['title']
-        title_text = window_data['text']
-        application_name = window_data['application_name']
+        title_text, application_name = parse_application_name(window_data['caption'])
+        remapped_name = get_application_remap(window_data, False)
+        if remapped_name is not None:
+            logger.debug(f"Remapped application name: {application_name} -> {remapped_name}")
 
     # Attempt to capture the URL from the titlebar
     url = ""
@@ -109,7 +114,7 @@ def process_display(use_title_ocr=True, window_data=None):
                 else:
                     content_str = ocr_content(capture)
             else:
-                if in_dbus_ignore(title_text):
+                if in_dbus_ignore(window_data):
                     should_ocr_content = False
                     logger.debug('Skipping OCR for ignored application ' + application_name + ' with title ' + title_text)
                 else:
@@ -121,7 +126,7 @@ def process_display(use_title_ocr=True, window_data=None):
         'file_path': screenshot_file,
         'ocr_title': title_text,
         'ocr_content': content_str,
-        'application_name': application_name,
+        'application_name': remapped_name if remapped_name is not None else application_name,
         'should_ocr_content': should_ocr_content,
         'ocr_time': ocr_time,
         'url': url,

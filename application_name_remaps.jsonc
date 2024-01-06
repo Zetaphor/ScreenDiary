@@ -1,0 +1,43 @@
+/**
+ * Application Name Remapping
+ *
+ * This JSON file contains a list of entries used to determine a different application name
+ * based on specific conditions. Each entry is an object with key-value pairs representing
+ * the conditions to be checked against the window data. These conditions can specify exact matches
+ * or partial (substring) matches.
+ *
+ * Structure of Each Entry:
+ * {
+ *   "key": "value",            // The 'key' is the field name in the window data to be checked.
+ *                              // The 'value' is the string to match against the window data's field value.
+ *   "key_exact": boolean,      // Optional. When set to true, requires an exact match of 'value' with the window data's field value.
+ *                              // When false or absent, a partial match is sufficient.
+ *   "new_name": "New Name"     // The new name to return if the conditions in the entry are met.
+ * }
+ *
+ * Example Entry:
+ * {
+ *   "name": "code",            // The 'name' field in the window data should match "code" (exact or partial match based on 'name_exact').
+ *   "name_exact": true,        // 'name_exact' is true, so an exact match is used for 'name'.
+ *   "new_name": "Visual Studio Code"  // If the condition is met, "Visual Studio Code" will be the new name returned.
+ * }
+ *
+ * Note:
+ * - If the OCR title extraction method is being used, only the 'name' field in the window data will be checked.
+ * - Each entry in the list is an independent condition set.
+ * - Each key is not required to be present in each entry. Only the key-value pairs that are present are used.
+ * - The processing logic will iterate through each entry and apply the conditions to the given window data.
+ * - If the conditions of an entry are satisfied by the window data, the 'new_name' value of that entry is returned.
+ * - All values are case-insensitive, keys are case sensitive.
+ */
+[
+  {
+    "name": "firefox-bin",
+    "name_exact": true,
+    "class": "FFPWA-",
+    "class_exact": false,
+    "caption": "Discord",
+    "caption_exact": false,
+    "new_name": "Discord"
+  }
+]
