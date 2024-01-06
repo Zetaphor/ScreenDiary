@@ -3,6 +3,13 @@ import os
 
 load_dotenv()
 
+def binarize_image(image):
+    """Convert an image to grayscale and binarize it"""
+    img_copy = image.copy()
+    img_copy = img_copy.convert("L")
+    img_copy = img_copy.point(lambda x: 255 if x > int(os.getenv('BINARIZATION_THRESHOLD')) else 0, mode="1")
+    return image
+
 def hex_to_rgb(hex_color):
     """Convert a hex color to an RGB tuple."""
     hex_color = hex_color.lstrip('#')

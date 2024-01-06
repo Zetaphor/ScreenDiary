@@ -2,13 +2,12 @@ import os
 import time
 from datetime import datetime
 from PIL import Image
-import pytesseract
 import imagehash
 from dotenv import load_dotenv
-from processing.crop_image import crop_image
 from logger_config import get_logger
-from util import get_ocr_ignore_list, parse_application_name, application_is_browser
-from history_parser import find_closest_history_entry
+from util import get_ocr_ignore_list
+from processing.ocr import ocr_titlebar, ocr_content
+from processing.browser import capture_url
 from processing.screenshot import take_screenshot
 
 load_dotenv()
@@ -30,30 +29,6 @@ phash = None
 dhash = None
 previous_dhash = None
 previous_phash = None
-
-def binarize_image(image):
-    """Convert an image to grayscale and binarize it"""
-    img_copy = image.copy()
-    img_copy = img_copy.convert("L")
-    img_copy = img_copy.point(lambda x: 255 if x > int(os.getenv('BINARIZATION_THRESHOLD')) else 0, mode="1")
-    return image
-
-def ocr_content(image):
-    """Manually load an image and OCR its content"""
-    image = Image.open(image)
-    crop_data = crop_image(image)
-    return ocr_content_live(crop_data[0])
-
-def ocr_content_live(cropped_image):
-    """OCR the content of an image after titlebar extraction"""
-    content_str = ""
-    content = binarize_image(cropped_image)
-    if bool(int(os.getenv('ENABLE_BINARIZATION'))):
-        content = binarize_image(cropped_image)
-    content_str = pytesseract.image_to_string(content).strip()
-    if content_str is None:
-        content_str = ""
-    return content_str
 
 def process_display(use_title_ocr=True, window_data=None):
     """
@@ -96,41 +71,27 @@ def process_display(use_title_ocr=True, window_data=None):
                 os.remove(screenshot_file)
                 return
 
+    application_name = "Unknown"
     titlebar_str = ""
     title_text = ""
-    application_name = "Unknown"
 
     if use_title_ocr:
         ocr_time = 0
         ocr_start_time = time.time()
         # Extract the titlebar and OCR it
-        crop_data = crop_image(capture)
-        if (len(crop_data) == 2):
-            titlebar = binarize_image(crop_data[1])
-            if bool(os.getenv('ENABLE_BINARIZATION')):
-                titlebar = binarize_image(crop_data[1])
-            titlebar_str = pytesseract.image_to_string(titlebar).strip()
-            if titlebar_str is None:
-                titlebar_str = ""
-            title_text, application_name = parse_application_name(titlebar_str)
+        titlebar_str, title_text, application_name = ocr_titlebar(capture)
+
     else:
         titlebar_str = window_data['title']
         title_text = window_data['text']
         application_name = window_data['application_name']
 
     # Attempt to capture the URL from the titlebar
-    capture_url = ""
+    url = ""
     url_time = 0
     url_partial = False
     if CAPTURE_BROWSER_URL:
-        if application_is_browser(application_name):
-            closest_entry, time_diff_in_minutes, partial_match = find_closest_history_entry(datetime_string, title_text)
-            if closest_entry is not None:
-                capture_url = closest_entry[1]
-                url_time = time_diff_in_minutes
-                url_partial = partial_match
-            else:
-                logger.debug(f"Could not find URL for {title_text} in {application_name} history.")
+        url, url_time, url_partial = capture_url(application_name, title_text, datetime_string)
 
     # Extract the content and OCR it
     content_str = ""
@@ -138,7 +99,7 @@ def process_display(use_title_ocr=True, window_data=None):
     if LIVE_OCR_CONTENT:
         if application_name == "Unknown":
             if OCR_UNKNOWN_APPLICATIONS:
-                content_str = ocr_content_live(crop_data[0])
+                content_str = ocr_content(capture)
             else:
                 should_ocr_content = False
                 logger.debug('Skipping OCR for unknown application')
@@ -146,7 +107,7 @@ def process_display(use_title_ocr=True, window_data=None):
             should_ocr_content = False
             logger.debug('Skipping OCR for ignored application ' + application_name)
         else:
-            content_str = ocr_content_live(crop_data[0])
+            content_str = ocr_content(capture)
 
     ocr_time = time.time() - ocr_start_time
     capture_result = {
@@ -157,7 +118,7 @@ def process_display(use_title_ocr=True, window_data=None):
         'application_name': application_name,
         'should_ocr_content': should_ocr_content,
         'ocr_time': ocr_time,
-        'url': capture_url,
+        'url': url,
         'url_time': url_time,
         'url_partial': url_partial
     }

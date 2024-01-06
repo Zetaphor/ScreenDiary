@@ -3,8 +3,33 @@ from datetime import datetime, timedelta
 from tzlocal import get_localzone
 import os
 from dotenv import load_dotenv
+from logger_config import get_logger
+
+logger = get_logger()
 
 load_dotenv()
+
+def capture_url(application_name, title_text, datetime_string):
+    capture_url = ""
+    url_time = 0
+    url_partial = False
+    if application_is_browser(application_name):
+        closest_entry, time_diff_in_minutes, partial_match = find_closest_history_entry(datetime_string, title_text)
+        if closest_entry is not None:
+            capture_url = closest_entry[1]
+            url_time = time_diff_in_minutes
+            url_partial = partial_match
+        else:
+            logger.debug(f"Could not find URL for {title_text} in {application_name} history.")
+    return capture_url, url_time, url_partial
+
+def application_is_browser(title):
+    title = title.lower()
+    is_browser = False
+    # Checking against list of browsers supported by browser-history package
+    if 'chrome' in title or 'firefox' in title or 'edge' in title or 'opera' in title or 'brave' in title or 'vivaldi' in title or 'chromium' in title or 'safari' in title or 'librewolf' in title:
+        is_browser = True
+    return is_browser
 
 def find_closest_history_entry(time_string, target_title):
     """

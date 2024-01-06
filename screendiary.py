@@ -48,7 +48,7 @@ def capture_timer(func, callback):
 
 def save_display_result(result):
     if result is None:
-        logger.error('Received empty display result')
+        return
     add_record(result['datetime'], result['file_path'], result['ocr_title'], result['ocr_content'], result['url'], result['url_time'], result['url_partial'], result['should_ocr_content'], result['ocr_time'], result['application_name'])
 
 def main():
