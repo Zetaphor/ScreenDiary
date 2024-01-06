@@ -1,0 +1,19 @@
+/*
+This file contains the window titles that should be ignored by the OCR
+The window will be ignored if the title contains the entry
+Titles are case insensitive
+*/
+[
+  {
+    "startswith": "Visual Studio Code"
+  },
+  {
+    "endswith": "Example"
+  },
+  {
+    "contains": "Example"
+  },
+  {
+    "equals": "Example"
+  }
+]

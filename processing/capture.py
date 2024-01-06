@@ -5,7 +5,7 @@ from PIL import Image
 import imagehash
 from dotenv import load_dotenv
 from logger_config import get_logger
-from util import get_ocr_ignore_list
+from util import in_dbus_ignore, in_ocr_ignore
 from processing.ocr import ocr_titlebar, ocr_content
 from processing.browser import capture_url
 from processing.screenshot import take_screenshot
@@ -22,8 +22,6 @@ OCR_UNKNOWN_APPLICATIONS = bool(int(os.getenv('OCR_UNKNOWN_APPLICATIONS')))
 
 CAPTURE_BROWSER_URL = bool(int(os.getenv('CAPTURE_BROWSER_URL')))
 BROWSER_HISTORY_MATCH_TIME_RANGE = int(os.getenv('BROWSER_HISTORY_MATCH_TIME_RANGE'))
-
-ocr_ignore_list = get_ocr_ignore_list('./ignore_ocr.conf')
 
 phash = None
 dhash = None
@@ -80,7 +78,6 @@ def process_display(use_title_ocr=True, window_data=None):
         ocr_start_time = time.time()
         # Extract the titlebar and OCR it
         titlebar_str, title_text, application_name = ocr_titlebar(capture)
-
     else:
         titlebar_str = window_data['title']
         title_text = window_data['text']
@@ -103,11 +100,20 @@ def process_display(use_title_ocr=True, window_data=None):
             else:
                 should_ocr_content = False
                 logger.debug('Skipping OCR for unknown application')
-        elif application_name in ocr_ignore_list:
-            should_ocr_content = False
-            logger.debug('Skipping OCR for ignored application ' + application_name)
         else:
-            content_str = ocr_content(capture)
+            if use_title_ocr:
+                # We're using title OCR, so we should use the OCR ignore list
+                if in_ocr_ignore(title_text):
+                    should_ocr_content = False
+                    logger.debug('Skipping OCR for ignored application ' + application_name + ' with title ' + title_text)
+                else:
+                    content_str = ocr_content(capture)
+            else:
+                if in_dbus_ignore(title_text):
+                    should_ocr_content = False
+                    logger.debug('Skipping OCR for ignored application ' + application_name + ' with title ' + title_text)
+                else:
+                    content_str = ocr_content(capture)
 
     ocr_time = time.time() - ocr_start_time
     capture_result = {

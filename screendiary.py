@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from processing.capture import process_display
 from logger_config import get_logger
 from database import check_and_initialize_db, add_record
-from util import empty_folder
+from util import empty_folder, load_ignore_lists
 from os_specific.kde.run_kwin_script import run_window_script
 from dbus_next.aio import MessageBus
 from dbus_next.service import ServiceInterface, method
@@ -54,6 +54,7 @@ def save_display_result(result):
 def main():
     debug_reset()
     check_and_initialize_db()
+    load_ignore_lists()
     logger.debug('Window title method: ' + os.getenv('WINDOW_TITLE_METHOD'))
 
     if os.getenv('WINDOW_TITLE_METHOD') == 'kde':

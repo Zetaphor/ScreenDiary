@@ -1,0 +1,23 @@
+/*
+This file allows you to manually map application names using different dbus properties
+All values are case insensitive
+ex: name=code, new_name=Visual Studio Code - will match against the window whose name contains the word code and map its application name to Visual Studio Code
+ex: res=FFPWA, caption=Discord, new_name=Discord - will match against the window whose resource contains the word FFPWA (Firefox PWA), whose caption contains Discord, and map its application name to Discord
+ex: name=steam, caption=Steam Settings, new_name=Steam Config - will match against the window whose name contains the word steam, whose caption contains Steam Settings, and map its application name to Steam Config
+*/
+[
+  {
+    "name": "code",
+    "new_name": "Visual Studio Code"
+  },
+  {
+    "res": "FFPWA",
+    "caption": "Discord",
+    "new_name": "Discord"
+  },
+  {
+    "name": "steam",
+    "caption": "Steam Settings",
+    "new_name": "Steam Config"
+  }
+]
