@@ -55,18 +55,21 @@ def reset_tables():
     conn.commit()
     conn.close()
 
-def add_record(datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_completed, ocr_time, application_name):
+def add_record(record_dict):
+    fields = ", ".join(record_dict.keys())
+    placeholders = ", ".join(["?"] * len(record_dict))
+    query = f"INSERT INTO captures ({fields}) VALUES ({placeholders})"
+
+    # Prepare the data tuple for the SQL query
+    data = tuple(record_dict.values())
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-
-    cursor.execute('''
-        INSERT INTO captures (datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_completed, ocr_time, application_name)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (datetime, file_path, ocr_title, ocr_content, url, url_time, int(url_partial), int(should_ocr_content), int(ocr_completed), float(ocr_time), application_name))
-
+    cursor.execute(query, data)
     conn.commit()
     conn.close()
-    # logger.debug("Record added successfully.")
+
+    logger.debug("Record added successfully.")
 
 def remove_record(record_id):
     conn = sqlite3.connect(DB_PATH)
@@ -78,16 +81,22 @@ def remove_record(record_id):
     conn.close()
     logger.debug("Record removed successfully.")
 
-def update_record(record_id, datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_completed, ocr_time, application_name):
+def update_record(update_dict):
+    if 'record_id' not in update_dict:
+        raise ValueError("record_id must be provided in update_dict")
+
+    record_id = update_dict.pop('record_id')
+
+    query = "UPDATE captures SET "
+    query += ", ".join([f"{key} = ?" for key in update_dict.keys()])
+    query += " WHERE id = ?"
+
+    data = tuple(update_dict.values()) + (record_id,)
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-
-    cursor.execute('''
-        UPDATE captures
-        SET datetime = ?, file_path = ?, ocr_title = ?, ocr_content = ?, url = ?, url_time = ?, url_partial = ?, should_ocr_content = ?, ocr_completed = ?, ocr_time = ?, application_name = ?
-        WHERE id = ?
-    ''', (datetime, file_path, ocr_title, ocr_content, url, url_time, int(url_partial), int(should_ocr_content), int(ocr_completed), float(ocr_time), application_name, record_id))
-
+    cursor.execute(query, data)
     conn.commit()
     conn.close()
+
     logger.debug("Record updated successfully.")
+
