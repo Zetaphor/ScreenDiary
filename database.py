@@ -36,6 +36,7 @@ def initialize_tables(cursor):
             ocr_content TEXT,
             ocr_time INTEGER, -- Time in milliseconds it took to run OCR, including title
             should_ocr_content INTEGER,
+            ocr_completed INTEGER,
             application_name TEXT,
             url TEXT,
             url_time NUMBER, -- How long ago in minutes the URL was matched in history
@@ -54,14 +55,14 @@ def reset_tables():
     conn.commit()
     conn.close()
 
-def add_record(datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_time, application_name):
+def add_record(datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_completed, ocr_time, application_name):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO captures (datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_time, application_name)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (datetime, file_path, ocr_title, ocr_content, url, url_time, int(url_partial), int(should_ocr_content), ocr_time, application_name))
+        INSERT INTO captures (datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_completed, ocr_time, application_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (datetime, file_path, ocr_title, ocr_content, url, url_time, int(url_partial), int(should_ocr_content), int(ocr_completed), float(ocr_time), application_name))
 
     conn.commit()
     conn.close()
@@ -77,15 +78,15 @@ def remove_record(record_id):
     conn.close()
     logger.debug("Record removed successfully.")
 
-def update_record(record_id, datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_time, application_name):
+def update_record(record_id, datetime, file_path, ocr_title, ocr_content, url, url_time, url_partial, should_ocr_content, ocr_completed, ocr_time, application_name):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute('''
         UPDATE captures
-        SET datetime = ?, file_path = ?, ocr_title = ?, ocr_content = ?, url = ?, url_time = ?, url_partial = ?, should_ocr_content = ?, ocr_time = ?, application_name = ?
+        SET datetime = ?, file_path = ?, ocr_title = ?, ocr_content = ?, url = ?, url_time = ?, url_partial = ?, should_ocr_content = ?, ocr_completed = ?, ocr_time = ?, application_name = ?
         WHERE id = ?
-    ''', (datetime, file_path, ocr_title, ocr_content, url, url_time, int(url_partial), int(should_ocr_content), ocr_time, application_name, record_id))
+    ''', (datetime, file_path, ocr_title, ocr_content, url, url_time, int(url_partial), int(should_ocr_content), int(ocr_completed), float(ocr_time), application_name, record_id))
 
     conn.commit()
     conn.close()

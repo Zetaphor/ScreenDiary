@@ -112,6 +112,7 @@ def process_display(use_title_ocr=True, window_data=None):
     # Extract the content and OCR it
     content_str = ""
     should_ocr_content = True
+    ocr_completed = False
     if LIVE_OCR_CONTENT:
         if application_name == "Unknown":
             if OCR_UNKNOWN_APPLICATIONS:
@@ -127,12 +128,14 @@ def process_display(use_title_ocr=True, window_data=None):
                     logger.debug('Skipping OCR for ignored application ' + application_name + ' with title ' + title_text)
                 else:
                     content_str = ocr_content(capture)
+                    ocr_completed = True
             else:
                 if in_dbus_ignore(window_data):
                     should_ocr_content = False
                     logger.debug('Skipping OCR for ignored application ' + application_name + ' with title ' + title_text)
                 else:
                     content_str = ocr_content(capture)
+                    ocr_completed = True
     else:
         logger.debug('Skipping OCR for ' + application_name)
 
@@ -144,6 +147,7 @@ def process_display(use_title_ocr=True, window_data=None):
         'ocr_content': content_str,
         'application_name': remapped_name if remapped_name is not None else application_name,
         'should_ocr_content': should_ocr_content,
+        'ocr_completed': ocr_completed,
         'ocr_time': ocr_time,
         'url': url,
         'url_time': url_time,
