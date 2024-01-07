@@ -13,14 +13,13 @@ def capture_url(application_name, title_text, datetime_string):
     capture_url = ""
     url_time = 0
     url_partial = False
-    if application_is_browser(application_name):
-        closest_entry, time_diff_in_minutes, partial_match = find_closest_history_entry(datetime_string, title_text)
-        if closest_entry is not None:
-            capture_url = closest_entry[1]
-            url_time = time_diff_in_minutes
-            url_partial = partial_match
-        else:
-            logger.debug(f"Could not find URL for {title_text} in {application_name} history.")
+    closest_entry, time_diff_in_minutes, partial_match = find_closest_history_entry(datetime_string, title_text)
+    if closest_entry is not None:
+        capture_url = closest_entry[1]
+        url_time = time_diff_in_minutes
+        url_partial = partial_match
+    else:
+        logger.debug(f"Could not find URL for {title_text} in {application_name} history.")
     return capture_url, url_time, url_partial
 
 def application_is_browser(title):

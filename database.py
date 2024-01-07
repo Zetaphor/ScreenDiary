@@ -38,6 +38,9 @@ def initialize_tables(cursor):
             should_ocr_content INTEGER,
             ocr_completed INTEGER,
             application_name TEXT,
+            remapped_name TEXT,
+            is_browser INTEGER,
+            url_captured INTEGER,
             url TEXT,
             url_time NUMBER, -- How long ago in minutes the URL was matched in history
             url_partial INTEGER -- Whether the URL was a partial match
@@ -59,11 +62,9 @@ def add_record(record_dict):
     fields = ", ".join(record_dict.keys())
     placeholders = ", ".join(["?"] * len(record_dict))
     query = f"INSERT INTO captures ({fields}) VALUES ({placeholders})"
-
-    # Prepare the data tuple for the SQL query
     data = tuple(record_dict.values())
-
     conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
     cursor.execute(query, data)
     conn.commit()

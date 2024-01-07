@@ -7,6 +7,7 @@ import hashlib
 from dotenv import load_dotenv
 from logger_config import get_logger
 from util import in_dbus_ignore, in_ocr_ignore, get_application_remap, parse_application_name
+from browser import application_is_browser
 from processing.ocr import ocr_titlebar, ocr_content
 from processing.browser import capture_url
 from processing.screenshot import take_screenshot
@@ -106,8 +107,14 @@ def process_display(use_title_ocr=True, window_data=None):
     url = ""
     url_time = 0
     url_partial = False
-    if CAPTURE_BROWSER_URL and LIVE_CAPTURE_BROWSER_URL:
-        url, url_time, url_partial = capture_url(application_name, title_text, datetime_string)
+    is_browser = False
+    url_captured = False
+    if CAPTURE_BROWSER_URL:
+        if application_is_browser(application_name):
+            is_browser = True
+            if LIVE_CAPTURE_BROWSER_URL:
+                url, url_time, url_partial = capture_url(application_name, title_text, datetime_string)
+                url_captured = True
 
     # Extract the content and OCR it
     content_str = ""
@@ -145,10 +152,13 @@ def process_display(use_title_ocr=True, window_data=None):
         'file_path': screenshot_file,
         'ocr_title': title_text,
         'ocr_content': content_str,
-        'application_name': remapped_name if remapped_name is not None else application_name,
+        'application_name': application_name,
+        'remapped_application_name': remapped_name,
         'should_ocr_content': should_ocr_content,
         'ocr_completed': ocr_completed,
         'ocr_time': ocr_time,
+        'is_browser': is_browser,
+        'url_captured': url_captured,
         'url': url,
         'url_time': url_time,
         'url_partial': url_partial
