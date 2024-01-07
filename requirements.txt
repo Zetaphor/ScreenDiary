@@ -1,7 +1,8 @@
-imagehash
-pytesseract
-Pillow
-loguru
-browser-history
-tzlocal
-dbus-next
+ImageHash==4.3.1
+pytesseract==0.3.10
+Pillow==10.0.0
+loguru==0.7.0
+browser-history==0.4.0
+tzlocal==5.0.1
+dbus-next==0.2.3
+evdev==1.6.1
