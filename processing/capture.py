@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from PIL import Image
 import imagehash
+import hashlib
 from dotenv import load_dotenv
 from logger_config import get_logger
 from util import in_dbus_ignore, in_ocr_ignore, get_application_remap, parse_application_name
@@ -25,8 +26,10 @@ BROWSER_HISTORY_MATCH_TIME_RANGE = int(os.getenv('BROWSER_HISTORY_MATCH_TIME_RAN
 
 phash = None
 dhash = None
+md5hash = None
 previous_dhash = None
 previous_phash = None
+previous_md5hash = None
 
 def process_display(use_title_ocr=True, window_data=None):
     """
@@ -34,7 +37,7 @@ def process_display(use_title_ocr=True, window_data=None):
     If use_title_ocr is True, then OCR the titlebar and content, otherwise
     use window_data to set the window titlebar
     """
-    global phash, dhash, previous_dhash, previous_phash
+    global phash, dhash, md5hash, previous_dhash, previous_phash, previous_md5hash
     start_time = time.time()
 
     os.makedirs(f"./captures/screenshots", exist_ok=True)
@@ -49,12 +52,23 @@ def process_display(use_title_ocr=True, window_data=None):
 
     capture = Image.open(f"./captures/screenshots/{datetime_string}.png")
 
+    # Check if the screenshot is bit for bit identical to the previous one
+    if bool(int(os.getenv('ENABLE_MD5_HASHING'))):
+        with open(f"./captures/screenshots/{datetime_string}.png", 'rb') as file:
+            data = file.read()
+            md5hash = hashlib.md5(data).hexdigest()
+            if previous_md5hash is not None:
+                if md5hash == previous_md5hash:
+                    logger.debug(f"Skipping identical frame {datetime_string} using MD5 Hashing")
+                    os.remove(screenshot_file)
+                    return
+
     # Check if the screenshot is identical to the previous one
     if bool(int(os.getenv('ENABLE_PERCEPTUAL_HASHING'))):
         phash = imagehash.phash(capture)
         if previous_phash is not None:
             if phash == previous_phash:
-                logger.debug(f"Skipping identical frame: {datetime_string}")
+                logger.debug(f"Skipping identical frame {datetime_string} using Perceptual Hashing")
                 os.remove(screenshot_file)
                 return
 
@@ -63,9 +77,8 @@ def process_display(use_title_ocr=True, window_data=None):
         dhash = imagehash.dhash(capture)
         if previous_dhash is not None:
             difference = dhash - previous_dhash
-            logger.debug(f"Difference: {difference}")
             if difference < int(os.getenv('DIFFERENCE_THRESHOLD')):
-                logger.debug(f"Skipping similar frame: {datetime_string}")
+                logger.debug(f"Skipping similar frame {datetime_string} using Difference Hashing. Detected Difference: {difference}")
                 os.remove(screenshot_file)
                 return
 
