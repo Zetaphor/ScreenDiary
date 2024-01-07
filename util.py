@@ -171,3 +171,21 @@ def parse_application_name(title):
         return (title[:last_dash].strip(), title[last_dash + 3:].strip())  # Extract preceding text and app name
     else:
         return (title, "Unknown")  # No dash found, return original title and "Unknown"
+
+def reset_logs():
+    try:
+        files = [file for file in os.listdir('./logs') if os.path.isfile(os.path.join('./logs', file))]
+
+        if not files:
+            logger.error("No files found in the log folder.")
+            return
+
+        # Sort files by modification time (latest first)
+        files.sort(key=lambda file: os.path.getmtime(os.path.join('./logs', file)), reverse=True)
+
+        # Keep the latest file, delete the rest
+        for file in files[1:]:
+            os.remove(os.path.join('./logs', file))
+
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")

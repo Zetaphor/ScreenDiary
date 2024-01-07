@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from processing.capture import process_display
 from logger_config import get_logger
 from database import check_and_initialize_db, add_record
-from util import empty_folder, load_ignore_lists, load_application_name_remaps, parse_application_name
+from util import empty_folder, load_ignore_lists, load_application_name_remaps, reset_logs
 from os_specific.kde.run_kwin_script import run_window_script
 from dbus_next.aio import MessageBus
 from dbus_next.service import ServiceInterface, method
@@ -33,6 +33,10 @@ async def run_dbus_server():
     await bus.wait_for_disconnect()
 
 def debug_reset():
+    if bool(int(os.getenv('DEBUG_RESET_LOGS'))):
+        logger.warning('Debug reset logs enabled, deleting logs...')
+        reset_logs()
+
     if bool(int(os.getenv('DEBUG_RESET'))):
         logger.warning('Debug reset enabled, deleting images, ocr, and database...')
         os.unlink(os.getenv('DB_PATH'))
