@@ -70,7 +70,7 @@ def add_record(record_dict):
     conn.commit()
     conn.close()
 
-    logger.debug("Record added successfully.")
+    # logger.debug("Record added successfully.")
 
 def remove_record(record_id):
     conn = sqlite3.connect(DB_PATH)
@@ -101,3 +101,32 @@ def update_record(update_dict):
 
     logger.debug("Record updated successfully.")
 
+def get_next_batch_ocr_record():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    query = '''
+    SELECT id, file_path, ocr_time FROM captures
+    WHERE should_ocr_content = 1
+      AND ocr_completed = 0
+    ORDER BY datetime ASC
+    LIMIT 1
+    '''
+
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def get_next_batch_url_record():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    query = '''
+    SELECT id, datetime, ocr_title, application_name FROM captures
+    WHERE is_browser = 1
+      AND url_captured = 0
+    ORDER BY datetime ASC
+    LIMIT 1
+    '''
+
+    cursor.execute(query)
+    return cursor.fetchall()

@@ -10,6 +10,7 @@ from os_specific.kde.run_kwin_script import run_window_script
 from dbus_next.aio import MessageBus
 from dbus_next.service import ServiceInterface, method
 from idle_monitor import IdleMonitor
+from processing.batch_process import process_next_batch
 
 load_dotenv()
 logger = get_logger()
@@ -17,6 +18,8 @@ logger = get_logger()
 USE_DBUS_SERVER = os.getenv('WINDOW_TITLE_METHOD') == 'kde'
 DEBUG_DBUS_WINDOW = bool(int(os.getenv('DEBUG_DBUS_WINDOW')))
 
+batch_processing_active = False
+batch_processing_timer = None
 
 class DbusInterface(ServiceInterface):
     def __init__(self):
@@ -51,6 +54,23 @@ def debug_reset():
         if os.path.exists('./captures/ocr'):
             empty_folder('captures/ocr')
 
+def run_batch_processing():
+    global batch_processing_timer, batch_processing_active
+    if not batch_processing_active:
+        return
+
+    process_next_batch()
+
+    # Reschedule the timer
+    batch_processing_timer = threading.Timer(2, run_batch_processing)
+    batch_processing_timer.start()
+
+def stop_batch_processing():
+    global batch_processing_timer
+    if batch_processing_timer:
+        batch_processing_timer.cancel()
+        batch_processing_timer = None
+
 def capture_timer(func, callback):
     threading.Timer(int(os.getenv('SCREENSHOT_INTERVAL')), capture_timer, [func, callback]).start()
     result = func()
@@ -59,9 +79,10 @@ def capture_timer(func, callback):
 def save_display_result(result):
     if result is None:
         return
-    add_record(result['datetime'], result['file_path'], result['ocr_title'], result['ocr_content'], result['url'], result['url_time'], result['url_partial'], result['should_ocr_content'], result['ocr_completed'], result['ocr_time'], result['application_name'])
+    add_record(result)
 
 def main():
+    global batch_processing_active, batch_processing_timer
     debug_reset()
     check_and_initialize_db()
     load_ignore_lists()
@@ -79,12 +100,23 @@ def main():
         logger.debug('Starting OCR loop...')
         capture_timer(process_display, save_display_result)
 
-
     logger.debug('Starting idle monitor...')
     monitor = IdleMonitor()
     monitor_thread = threading.Thread(target=monitor.monitor_input, daemon=True)
     monitor.reset_timer()
     monitor_thread.start()
+
+    while True:
+        if monitor.has_inactivity():
+            if not batch_processing_active:
+                logger.debug('Inactivity detected, starting batch processing...')
+                batch_processing_active = True
+                run_batch_processing()
+        else:
+            if batch_processing_active:
+                logger.debug('Activity detected, stopping batch processing...')
+                batch_processing_active = False
+                stop_batch_processing()
 
 if __name__ == '__main__':
     main()

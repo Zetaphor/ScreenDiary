@@ -7,9 +7,8 @@ import hashlib
 from dotenv import load_dotenv
 from logger_config import get_logger
 from util import in_dbus_ignore, in_ocr_ignore, get_application_remap, parse_application_name
-from browser import application_is_browser
 from processing.ocr import ocr_titlebar, ocr_content
-from processing.browser import capture_url
+from processing.browser import capture_url, application_is_browser
 from processing.screenshot import take_screenshot
 
 load_dotenv()
@@ -153,7 +152,7 @@ def process_display(use_title_ocr=True, window_data=None):
         'ocr_title': title_text,
         'ocr_content': content_str,
         'application_name': application_name,
-        'remapped_application_name': remapped_name,
+        'remapped_name': remapped_name,
         'should_ocr_content': should_ocr_content,
         'ocr_completed': ocr_completed,
         'ocr_time': ocr_time,
