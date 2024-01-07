@@ -152,6 +152,7 @@ def process_display(use_title_ocr=True, window_data=None):
 
     previous_dhash = dhash
     previous_phash = phash
+    previous_md5hash = md5hash
 
     if DEBUG_OCR:
         os.makedirs(f"./captures/ocr", exist_ok=True)
