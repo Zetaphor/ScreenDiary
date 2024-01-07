@@ -22,6 +22,7 @@ LIVE_OCR_CONTENT = bool(int(os.getenv('LIVE_OCR_CONTENT')))
 OCR_UNKNOWN_APPLICATIONS = bool(int(os.getenv('OCR_UNKNOWN_APPLICATIONS')))
 
 CAPTURE_BROWSER_URL = bool(int(os.getenv('CAPTURE_BROWSER_URL')))
+LIVE_CAPTURE_BROWSER_URL = bool(int(os.getenv('LIVE_CAPTURE_BROWSER_URL')))
 BROWSER_HISTORY_MATCH_TIME_RANGE = int(os.getenv('BROWSER_HISTORY_MATCH_TIME_RANGE'))
 
 phash = None
@@ -105,7 +106,7 @@ def process_display(use_title_ocr=True, window_data=None):
     url = ""
     url_time = 0
     url_partial = False
-    if CAPTURE_BROWSER_URL:
+    if CAPTURE_BROWSER_URL and LIVE_CAPTURE_BROWSER_URL:
         url, url_time, url_partial = capture_url(application_name, title_text, datetime_string)
 
     # Extract the content and OCR it
@@ -132,6 +133,8 @@ def process_display(use_title_ocr=True, window_data=None):
                     logger.debug('Skipping OCR for ignored application ' + application_name + ' with title ' + title_text)
                 else:
                     content_str = ocr_content(capture)
+    else:
+        logger.debug('Skipping OCR for ' + application_name)
 
     ocr_time = time.time() - ocr_start_time
     capture_result = {
