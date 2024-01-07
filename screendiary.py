@@ -9,6 +9,7 @@ from util import empty_folder, load_ignore_lists, load_application_name_remaps, 
 from os_specific.kde.run_kwin_script import run_window_script
 from dbus_next.aio import MessageBus
 from dbus_next.service import ServiceInterface, method
+from idle_monitor import IdleMonitor
 
 load_dotenv()
 logger = get_logger()
@@ -64,14 +65,23 @@ def main():
     load_application_name_remaps()
     logger.debug('Window title method: ' + os.getenv('WINDOW_TITLE_METHOD'))
 
+    # Start capturing screenshots
     if os.getenv('WINDOW_TITLE_METHOD') == 'kde':
-        # Need to start the timer before dbus
         capture_timer(run_window_script, lambda val: None)
         logger.debug('Starting DBus server...')
-        asyncio.run(run_dbus_server())
-
+        loop = asyncio.new_event_loop()
+        dbus_thread = threading.Thread(target=lambda: loop.run_until_complete(run_dbus_server()), daemon=True)
+        dbus_thread.start()
     elif os.getenv('WINDOW_TITLE_METHOD') == 'ocr':
+        logger.debug('Starting OCR loop...')
         capture_timer(process_display, save_display_result)
+
+
+    logger.debug('Starting idle monitor...')
+    monitor = IdleMonitor()
+    monitor_thread = threading.Thread(target=monitor.monitor_input, daemon=True)
+    monitor.reset_timer()
+    monitor_thread.start()
 
 if __name__ == '__main__':
     main()
