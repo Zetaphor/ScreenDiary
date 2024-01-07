@@ -6,8 +6,11 @@ logger = get_logger()
 
 script = os.path.abspath("os_specific/kde/kWinActiveWindow.js")
 
+DEBUG_DBUS_WINDOW = bool(int(os.getenv('DEBUG_DBUS_WINDOW')))
+
 def run_window_script():
-    logger.debug("Running KWin script: " + script)
+    if DEBUG_DBUS_WINDOW:
+        logger.debug("Running KWin script: " + script)
     # Load script
     reg_script_number = subprocess.run("dbus-send --print-reply --dest=org.kde.KWin \
                         /Scripting org.kde.kwin.Scripting.loadScript \

@@ -15,6 +15,8 @@ load_dotenv()
 logger = get_logger()
 
 USE_DBUS_SERVER = os.getenv('WINDOW_TITLE_METHOD') == 'kde'
+DEBUG_DBUS_WINDOW = bool(int(os.getenv('DEBUG_DBUS_WINDOW')))
+
 
 class DbusInterface(ServiceInterface):
     def __init__(self):
@@ -22,7 +24,8 @@ class DbusInterface(ServiceInterface):
 
     @method()
     def updateActiveWindow(self, resource_name: "s", resource_class: "s", caption: "s"):
-        logger.debug(f'Active Window | Name: {resource_name}, Class: {resource_class}, Caption: {caption}')
+        if DEBUG_DBUS_WINDOW:
+            logger.debug(f'Active Window | Name: {resource_name}, Class: {resource_class}, Caption: {caption}')
         result = process_display(False, {'name': resource_name, 'class': resource_class, 'caption': caption})
         save_display_result(result)
 
