@@ -1,4 +1,3 @@
-// useSummaryStore.js
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
@@ -19,6 +18,9 @@ export const useSummaryStore = defineStore('summary', {
       } catch (error) {
         console.error('Error fetching summary data:', error);
       }
+    },
+    getRecordById(id) {
+      return this.ocr_records.find(obj => obj.id == Number(id));
     }
   }
 });
