@@ -30,8 +30,8 @@ class DbusInterface(ServiceInterface):
     def updateActiveWindow(self, resource_name: "s", resource_class: "s", caption: "s"):
         if DEBUG_DBUS_WINDOW:
             logger.debug(f'Active Window | Name: {resource_name}, Class: {resource_class}, Caption: {caption}')
-        result = process_display(False, {'name': resource_name, 'class': resource_class, 'caption': caption})
-        save_display_result(result)
+        # result = process_display(False, {'name': resource_name, 'class': resource_class, 'caption': caption})
+        # save_display_result(result)
 
 async def run_dbus_server():
     bus = await MessageBus().connect()
@@ -84,8 +84,8 @@ def save_display_result(result):
 
 def main():
     global batch_processing_active, batch_processing_timer
-    debug_reset()
-    check_and_initialize_db()
+    # debug_reset()
+    # check_and_initialize_db()
     load_ignore_lists()
     load_application_name_remaps()
     logger.debug('Window title method: ' + os.getenv('WINDOW_TITLE_METHOD'))
