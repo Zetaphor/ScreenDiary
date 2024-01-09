@@ -1,9 +1,17 @@
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+import { useSummaryStore } from '@/stores/summary'
+import { onMounted } from 'vue'
+import ImageGrid from '@/components/ImageGrid.vue'
+
+const summary = useSummaryStore()
+
+onMounted(() => {
+  summary.fetchSummary()
+})
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <div>
+    <ImageGrid />
+  </div>
 </template>
