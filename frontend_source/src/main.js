@@ -1,4 +1,5 @@
 import './assets/main.css'
+import { parseDatetime } from './datetime.js'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -14,5 +15,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(materialIcons);
+
+app.config.globalProperties.$formatDateTime = parseDatetime;
 
 app.mount('#app')
