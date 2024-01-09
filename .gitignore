@@ -1,5 +1,4 @@
 captures/
-__pycache__
 logs/
 /**/*.db
 /**/*.sqlite

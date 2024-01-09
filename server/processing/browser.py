@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from tzlocal import get_localzone
 import os
 from dotenv import load_dotenv
-from logger_config import get_logger
+from server.logger_config import get_logger
 
 logger = get_logger()
 

@@ -1,5 +1,5 @@
-from processing.image_manipulation import binarize_image, crop_image
-from util import parse_application_name
+from server.processing.image_manipulation import binarize_image, crop_image
+from server.util import parse_application_name
 import pytesseract
 import os
 

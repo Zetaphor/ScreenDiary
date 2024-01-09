@@ -5,11 +5,11 @@ from PIL import Image
 import imagehash
 import hashlib
 from dotenv import load_dotenv
-from logger_config import get_logger
-from util import in_dbus_ignore, in_ocr_ignore, get_application_remap, parse_application_name
-from processing.ocr import ocr_titlebar, ocr_content
-from processing.browser import capture_url, application_is_browser
-from processing.screenshot import take_screenshot
+from server.logger_config import get_logger
+from server.util import in_dbus_ignore, in_ocr_ignore, get_application_remap, parse_application_name
+from server.processing.ocr import ocr_titlebar, ocr_content
+from server.processing.browser import capture_url, application_is_browser
+from server.processing.screenshot import take_screenshot
 
 load_dotenv()
 

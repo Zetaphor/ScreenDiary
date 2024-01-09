@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv
-from logger_config import get_logger
-from database import get_next_batch_ocr_record, get_next_batch_url_record, update_record
-from processing.browser import capture_url
-from processing.ocr import ocr_content
+from server.logger_config import get_logger
+from server.database import get_next_batch_ocr_record, get_next_batch_url_record, update_record
+from server.processing.browser import capture_url
+from server.processing.ocr import ocr_content
 from PIL import Image
 import time
 

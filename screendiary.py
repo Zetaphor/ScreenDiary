@@ -2,15 +2,16 @@ import threading
 import os
 import asyncio
 from dotenv import load_dotenv
-from processing.capture import process_display
-from logger_config import get_logger
-from database import check_and_initialize_db, add_record
-from util import empty_folder, load_ignore_lists, load_application_name_remaps, reset_logs
-from os_specific.kde.run_kwin_script import run_window_script
+from server.processing.capture import process_display
+from server.logger_config import get_logger
+from server.database import check_and_initialize_db, add_record
+from server.util import empty_folder, load_ignore_lists, load_application_name_remaps, reset_logs
+from server.os_specific.kde.run_kwin_script import run_window_script
 from dbus_next.aio import MessageBus
 from dbus_next.service import ServiceInterface, method
-from idle_monitor import IdleMonitor
-from processing.batch_process import process_next_batch
+from server.idle_monitor import IdleMonitor
+from server.processing.batch_process import process_next_batch
+import server.webserver
 
 load_dotenv()
 logger = get_logger()
@@ -105,6 +106,7 @@ def main():
     monitor_thread = threading.Thread(target=monitor.monitor_input, daemon=True)
     monitor.reset_timer()
     monitor_thread.start()
+    server.webserver.start_web_server()
 
     while True:
         if monitor.has_inactivity():

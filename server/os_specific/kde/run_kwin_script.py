@@ -1,10 +1,10 @@
 import os
 import subprocess
-from logger_config import get_logger
+from server.logger_config import get_logger
 
 logger = get_logger()
 
-script = os.path.abspath("os_specific/kde/kWinActiveWindow.js")
+script = os.path.abspath("./server/os_specific/kde/kWinActiveWindow.js")
 
 DEBUG_DBUS_WINDOW = bool(int(os.getenv('DEBUG_DBUS_WINDOW')))
 

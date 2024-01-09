@@ -1,6 +1,6 @@
 import os
 import shutil
-from logger_config import get_logger
+from server.logger_config import get_logger
 import json
 import re
 
@@ -98,14 +98,14 @@ def in_ocr_ignore(title_string):
 
 def load_ignore_lists():
     global dbus_ignore_entries, ocr_ignore_entries
-    dbus_ignore_entries = load_jsonc('ignore_dbus.jsonc')
+    dbus_ignore_entries = load_jsonc('./server/ignore_dbus.jsonc')
     if dbus_ignore_entries is not None:
         logger.info(f"Loaded {len(dbus_ignore_entries)} DBus ignore entries")
     else:
         logger.error("Failed to load DBus ignore entries")
         exit(1)
 
-    ocr_ignore_entries = load_jsonc('ignore_ocr.jsonc')
+    ocr_ignore_entries = load_jsonc('./server/ignore_ocr.jsonc')
     if ocr_ignore_entries is not None:
         logger.info(f"Loaded {len(ocr_ignore_entries)} OCR ignore entries")
     else:
@@ -114,7 +114,7 @@ def load_ignore_lists():
 
 def load_application_name_remaps():
     global application_name_remaps
-    application_name_remaps = load_jsonc('application_name_remaps.jsonc')
+    application_name_remaps = load_jsonc('./server/application_name_remaps.jsonc')
     if application_name_remaps is not None:
         logger.info(f"Loaded {len(application_name_remaps)} application name remaps")
     else:

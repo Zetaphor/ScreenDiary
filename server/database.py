@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from dotenv import load_dotenv
-from logger_config import get_logger
+from server.logger_config import get_logger
 
 load_dotenv()
 
