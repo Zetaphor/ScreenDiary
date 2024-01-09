@@ -101,6 +101,18 @@ def update_record(update_dict):
 
     logger.debug("Record updated successfully.")
 
+def query_database(query, params=None):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    if params is None:
+        cursor.execute(query)
+    else:
+        cursor.execute(query, params)
+    columns = [column[0] for column in cursor.description]
+    results = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    conn.close()
+    return results
+
 def get_next_batch_ocr_record():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
