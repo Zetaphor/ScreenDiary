@@ -7,7 +7,7 @@
 
       <div class="absolute bottom-0 w-full bg-gray-900 text-white text-center py-1 rounded-b-md">
         <p>{{ item.ocr_title }}</p>
-        <p class="text-gray-400 text-sm">{{ item.application_name }}</p>
+        <p class="text-gray-400 text-sm">{{ item.remapped_name === null ? item.application_name : item.remapped_name }}</p>
       </div>
 
       <div class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
