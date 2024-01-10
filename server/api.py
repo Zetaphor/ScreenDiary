@@ -4,7 +4,7 @@ logger = get_logger()
 from server.database import query_database
 
 def summary():
-  ocr_records = query_database("SELECT * FROM captures WHERE ocr_completed = 1;")
+  ocr_records = query_database("SELECT * FROM captures WHERE ocr_completed = 1 ORDER BY datetime DESC;")
   ocr_pending = query_database("SELECT COUNT(id) FROM captures WHERE ocr_completed = 0;")
   ocr_completed = len(ocr_records)
   return {
