@@ -16,7 +16,7 @@ DEBUG = bool(int(os.getenv('DEBUG')))
 cli = sys.modules['flask.cli']
 cli.show_server_banner = lambda *x: None
 
-app = Flask(__name__, template_folder='./user_interface/content', static_folder='./user_interface/static')
+app = Flask(__name__, template_folder='../frontend', static_folder='../captures')
 
 @app.route('/')
 def home():
