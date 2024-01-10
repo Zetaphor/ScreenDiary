@@ -5,7 +5,7 @@
     </RouterLink>
     <div class="flex-grow mx-4">
       <div>
-        <input class="w-full p-2 rounded" type="search" placeholder="Search...">
+        <input class="w-full p-2 rounded text-black" type="search" placeholder="Search...">
       </div>
     </div>
     <button class="p-2 rounded hover:bg-gray-700 inline-flex items-center">
