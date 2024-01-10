@@ -8,7 +8,7 @@
     </div>
     <div
       v-if="isOpen"
-      class="accordion-content p-4 bg-gray-100"
+      class="accordion-content px-1 mb-4 bg-gray-100"
     >
       <slot></slot>
     </div>
@@ -16,7 +16,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineProps } from 'vue';
 
-const isOpen = ref(false);
+const props = defineProps({
+  initialOpen: {
+    type: Boolean,
+    default: false
+  }
+});
+
+const isOpen = ref(props.initialOpen);
 </script>
