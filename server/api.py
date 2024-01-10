@@ -12,3 +12,6 @@ def summary():
     'ocr_pending': ocr_pending[0]['COUNT(id)'],
     'ocr_records': ocr_records
   }
+
+def search_ocr(query):
+  return query_database("SELECT * FROM captures WHERE ocr_content LIKE ? ORDER BY datetime DESC;", ('%' + query + '%',))

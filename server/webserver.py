@@ -26,11 +26,10 @@ def home():
 def summary():
     return jsonify(api.summary())
 
-@app.route('/data', methods=['POST'])
+@app.route('/search_ocr', methods=['POST'])
 def post_data():
-    # Handle a POST request
-    data = request.form['data']
-    return f"Data received via POST: {data}"
+    data = request.form['query']
+    return jsonify(api.search_ocr(data))
 
 def start():
     logger.info('Startup complete, user interface running on http://localhost:' + str(SERVER_PORT))
